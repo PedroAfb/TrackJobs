@@ -46,11 +46,8 @@ Este documento detalha os requisitos necessários para desenvolver o sistema **T
 ### **Requisitos Técnicos**
 
 1. **Banco de Dados**
-   - Banco: SQLite.
-   - Tabelas necessárias:
-     - `empresas`: Armazena informações básicas das empresas.
-     - `candidaturas`: Detalhes das candidaturas, incluindo requisitos.
-     - `status`: Lista de status disponíveis para as candidaturas.
+
+   <img src="assets/bancoDeDados.png" alt="Diagrama de Banco de Dados" width="600">
 
 2. **Backend**
    - Linguagem: Python.

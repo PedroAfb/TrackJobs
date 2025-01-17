@@ -67,35 +67,4 @@ Este documento detalha os requisitos necessários para desenvolver o sistema **T
 
 ---
 
-### **Requisitos Adicionais**
-
-1. **Usabilidade**
-   - Simplicidade no uso do sistema.
-   - Instruções claras para os usuários.
-
-2. **Escalabilidade**
-   - Estrutura do banco de dados flexível para expansão futura.
-
-3. **Portabilidade**
-   - O sistema deve ser executável em qualquer ambiente que suporte Python.
-
----
-
-### **Possíveis Extensões Futuras**
-- Adicionar integração com APIs de recrutamento (LinkedIn, Glassdoor, etc.).
-- Sistema de notificações para mudanças no status das candidaturas.
-- Interface gráfica (GUI) com bibliotecas como Tkinter ou PyQt.
-
----
-
-### **Recursos Necessários**
-- Python 3.8 ou superior.
-- Bibliotecas Python (instaláveis com `pip`):
-  - `sqlite3` (incluso na biblioteca padrão).
-  - `csv` (incluso na biblioteca padrão).
-  - `fpdf` ou `reportlab`.
-  - `rich` (opcional, para interface no terminal).
-
----
-
 **TrackJobs** é uma ferramenta prática para otimizar a organização de processos seletivos, oferecendo insights valiosos sobre o mercado e ajudando no planejamento de sua carreira. 🚀

@@ -1,7 +1,6 @@
 from rich.console import Console
 from rich.prompt import IntPrompt, Prompt
 from rich.panel import Panel
-import datetime
 import click
 import sqlite3
 
@@ -56,10 +55,11 @@ def cadastra_candidatura():
     conexao = sqlite3.connect("track_jobs.db")
     cursor = conexao.cursor()
 
-    lista_empresas = cursor.execute("""select nome from empresas""").fetchall()
-    print(lista_empresas)
+    cursor.execute("SELECT 1 FROM empresas WHERE nome = ?", (nome_empresa,))
+    empresa_existe = cursor.fetchone()
+    
 
-    if nome_empresa and nome_empresa not in lista_empresas:
+    if nome_empresa and not empresa_existe:
         site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
         setor_empresa = Prompt.ask("Qual o setor da empresa?[OPCIONAL]")
     
@@ -68,6 +68,21 @@ def cadastra_candidatura():
             ('{nome_empresa}', '{site_empresa}', '{setor_empresa}')
             """)
         conexao.commit()
+
+    if nome_empresa:
+        id_empresa = cursor.execute("SELECT id FROM empresas WHERE nome = ?", (nome_empresa,)).fetchall()[0][0]
+        msg_insert = (
+            "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes, idEmpresa) VALUES\n"
+            f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}', '{id_empresa}')"
+        )
+    else:
+        msg_insert = (
+        "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes) VALUES\n"
+        f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}')"
+        )
+
+    cursor.execute(msg_insert)
+    conexao.commit()
 
 
 def main():

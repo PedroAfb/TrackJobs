@@ -3,6 +3,7 @@ from rich.prompt import IntPrompt, Prompt
 from rich.panel import Panel
 import click
 import sqlite3
+from exceptions import InicializacaoBancoException, CadastroBancoException
 
 CADASTRAR_CANDIDATURA = 1
 EDITAR_STATUS = 2 
@@ -13,6 +14,7 @@ DATA_NULA = '0/0/0'
 console = Console()
 
 def inicializa_banco():
+    try:
         conexao = sqlite3.connect("track_jobs.db")
         cursor = conexao.cursor()
 
@@ -40,6 +42,9 @@ def inicializa_banco():
 
         conexao.close()
 
+    except:
+        raise InicializacaoBancoException("Erro ao inicializar o banco de dados")
+
 def cadastra_candidatura():
     nome = click.prompt("Qual o nome da vaga?[OBRIGATÓRIO]")
     link = click.prompt("Qual o link da vaga?[OBRIGATÓRIO]")
@@ -52,37 +57,43 @@ def cadastra_candidatura():
     detalhes = Prompt.ask("Coloque detalhes sobre a vaga[OPCIONAL]")
     nome_empresa = Prompt.ask("Qual o nome da empresa?[OPCIONAL]")
 
-    conexao = sqlite3.connect("track_jobs.db")
-    cursor = conexao.cursor()
+    try:
+        conexao = sqlite3.connect("track_jobs.db")
+        cursor = conexao.cursor()
 
-    cursor.execute("SELECT 1 FROM empresas WHERE nome = ?", (nome_empresa,))
-    empresa_existe = cursor.fetchone()
-    
+        cursor.execute("SELECT 1 FROM empresas WHERE nome = ?", (nome_empresa,))
+        empresa_existe = cursor.fetchone()
+        
 
-    if nome_empresa and not empresa_existe:
-        site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
-        setor_empresa = Prompt.ask("Qual o setor da empresa?[OPCIONAL]")
-    
-        cursor.execute(f"""
-            INSERT INTO empresas (nome, site, setor) VALUES
-            ('{nome_empresa}', '{site_empresa}', '{setor_empresa}')
-            """)
+        if nome_empresa and not empresa_existe:
+            site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
+            setor_empresa = Prompt.ask("Qual o setor da empresa?[OPCIONAL]")
+        
+            cursor.execute(f"""
+                INSERT INTO empresas (nome, site, setor) VALUES
+                ('{nome_empresa}', '{site_empresa}', '{setor_empresa}')
+                """)
+            conexao.commit()
+
+        if nome_empresa:
+            id_empresa = cursor.execute("SELECT id FROM empresas WHERE nome = ?", (nome_empresa,)).fetchall()[0][0]
+            msg_insert = (
+                "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes, idEmpresa) VALUES\n"
+                f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}', '{id_empresa}')"
+            )
+        else:
+            msg_insert = (
+            "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes) VALUES\n"
+            f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}')"
+            )
+
+        cursor.execute(msg_insert)
         conexao.commit()
+        console.print("Cadastro realizado com sucesso")
+        
+    except:
+        raise CadastroBancoException("Erro ao cadastrar vaga no banco de dados")
 
-    if nome_empresa:
-        id_empresa = cursor.execute("SELECT id FROM empresas WHERE nome = ?", (nome_empresa,)).fetchall()[0][0]
-        msg_insert = (
-            "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes, idEmpresa) VALUES\n"
-            f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}', '{id_empresa}')"
-        )
-    else:
-        msg_insert = (
-        "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes) VALUES\n"
-        f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}')"
-        )
-
-    cursor.execute(msg_insert)
-    conexao.commit()
 
 
 def main():

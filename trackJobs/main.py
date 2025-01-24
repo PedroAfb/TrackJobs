@@ -42,7 +42,12 @@ def inicializa_banco():
 
         conexao.close()
 
-    except:
+    except Exception as e:
+        console.print(
+            "[bold red]Erro ao inicializar o banco de dados.[/bold red] Verifique se há problemas de permissão ou formato do banco."
+        )
+        console.print(f"[bold yellow]Erro técnico:[/bold yellow] {str(e)}")
+        console.print("[bold red]Encerrando o programa...[/bold red]")
         raise InicializacaoBancoException("Erro ao inicializar o banco de dados")
 
 def cadastra_candidatura():
@@ -89,11 +94,22 @@ def cadastra_candidatura():
 
         cursor.execute(msg_insert)
         conexao.commit()
-        console.print("Cadastro realizado com sucesso")
-        
-    except:
-        raise CadastroBancoException("Erro ao cadastrar vaga no banco de dados")
+        console.print("[bold green]Cadastro realizado com sucesso![/bold green]")
+        conexao.close()
 
+    except sqlite3.IntegrityError as e:
+        console.print(
+            "[bold red]Erro ao cadastrar no banco de dados: Informação duplicada.[/bold red]"
+        )
+        console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
+
+    except Exception as e:
+        console.print("[bold red]Erro inesperado ao cadastrar a vaga.[/bold red]")
+        console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
+        console.print("[bold red]Entre em contato com o suporte técnico.[/bold red]")
+        raise CadastroBancoException()
+    finally:
+        conexao.close()
 
 
 def main():

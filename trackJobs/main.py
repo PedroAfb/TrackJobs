@@ -22,7 +22,7 @@ def inicializa_banco():
             """create table if not exists empresas(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL UNIQUE,
-            site TEXT UNIQUE,
+            site TEXT,
             setor TEXT
             )"""
         )
@@ -32,7 +32,6 @@ def inicializa_banco():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             link TEXT NOT NULL UNIQUE,
-            data_aplicacao DATE,
             status TEXT DEFAULT 'em análise',
             descricao TEXT,
             idEmpresa INTEGER,

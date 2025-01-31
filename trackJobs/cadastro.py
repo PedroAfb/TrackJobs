@@ -3,14 +3,20 @@ from rich.prompt import Prompt
 from rich.console import Console
 import click
 import sqlite3
+from datetime import datetime
 
 console = Console()
 
-def obter_site_empresa():
+def obter_site_empresa(cursor):
     while True:
         site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
 
-        if not site_empresa or validators.url(site_empresa):
+        if not site_empresa:
+            return None
+        elif validators.url(site_empresa):
+            cursor.execute("SELECT 1 FROM empresas WHERE site = ?", (site_empresa,))
+            if cursor.fetchone():
+                raise sqlite3.IntegrityError("empresas.site")
             return site_empresa
         else:
             print("[bold red]URL inválida. Digite um link válido ou deixe em branco.[/bold red]")
@@ -23,11 +29,10 @@ def cadastra_candidatura():
     nome = nome.strip().lower()
 
     link = click.prompt("Qual o link da vaga?[OBRIGATÓRIO]") # tem que ser unique
-    data = Prompt.ask("Qual foi a data de aplicação?[OPCIONAL]")
     status = Prompt.ask(
         "Qual o status da candidatura?[OPCIONAL]",
-        choices=["em análise", "entrevista", "rejeitado", "aceito"],
-        default="em análise",
+        choices=["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"],
+        default="candidatar-se",
         show_default=False)
     descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")
     nome_empresa = Prompt.ask("Qual o nome da empresa?[OPCIONAL]")
@@ -42,7 +47,7 @@ def cadastra_candidatura():
         
 
         if nome_empresa and not empresa_existe:    # Se o usuário escreveu no campo empresa e ela não está no banco de dados, o cadastro da empresa é realizado
-            site_empresa = obter_site_empresa()
+            site_empresa = obter_site_empresa(cursor)
             setor_empresa = Prompt.ask("Qual o setor da empresa?[OPCIONAL]")
         
             cursor.execute(f"""
@@ -54,13 +59,13 @@ def cadastra_candidatura():
         if nome_empresa:    # Adiciona vaga com uma empresa associada
             id_empresa = cursor.execute("SELECT id FROM empresas WHERE nome = ?", (nome_empresa,)).fetchall()[0][0]
             msg_insert = (
-                "INSERT INTO vagas (nome, link, data_aplicacao, status, descricao, idEmpresa) VALUES\n"
-                f"('{nome}', '{link}', '{data}', '{status}', '{descricao}', '{id_empresa}')"
+                "INSERT INTO vagas (nome, link, status, descricao, idEmpresa) VALUES\n"
+                f"('{nome}', '{link}', '{status}', '{descricao}', '{id_empresa}')"
             )
         else:
             msg_insert = (
-            "INSERT INTO vagas (nome, link, data_aplicacao, status, descricao) VALUES\n"
-            f"('{nome}', '{link}', '{data}', '{status}', '{descricao}')"
+            "INSERT INTO vagas (nome, link, status, descricao) VALUES\n"
+            f"('{nome}', '{link}', '{status}', '{descricao}')"
             )
 
         cursor.execute(msg_insert)

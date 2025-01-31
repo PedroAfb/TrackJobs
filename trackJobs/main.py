@@ -4,6 +4,7 @@ from rich.panel import Panel
 import click
 import sqlite3
 from exceptions import InicializacaoBancoException, CadastroBancoException
+import validators
 
 CADASTRAR_CANDIDATURA = 1
 EDITAR_STATUS = 2 
@@ -34,7 +35,7 @@ def inicializa_banco():
             link TEXT NOT NULL,
             data_aplicacao DATE,
             status TEXT DEFAULT 'em análise',
-            detalhes TEXT,
+            descricao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY(idEmpresa) REFERENCES empresas(id)
             )"""
@@ -52,14 +53,14 @@ def inicializa_banco():
 
 def cadastra_candidatura():
     nome = click.prompt("Qual o nome da vaga?[OBRIGATÓRIO]")
-    link = click.prompt("Qual o link da vaga?[OBRIGATÓRIO]")
+    link = click.prompt("Qual o link da vaga?[OBRIGATÓRIO]") # tem que ser unique
     data = Prompt.ask("Qual foi a data de aplicação?[OPCIONAL]")
     status = Prompt.ask(
         "Qual o status da candidatura?[OPCIONAL]",
         choices=["em análise", "entrevista", "rejeitado", "aceito"],
         default="em análise",
         show_default=False)
-    detalhes = Prompt.ask("Coloque detalhes sobre a vaga[OPCIONAL]")
+    descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")
     nome_empresa = Prompt.ask("Qual o nome da empresa?[OPCIONAL]")
 
     try:
@@ -70,7 +71,7 @@ def cadastra_candidatura():
         empresa_existe = cursor.fetchone()
         
 
-        if nome_empresa and not empresa_existe:
+        if nome_empresa and not empresa_existe:    # Se o usuário escreveu no campo empresa e ela não está no banco de dados, o cadastro da empresa é realizado
             site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
             setor_empresa = Prompt.ask("Qual o setor da empresa?[OPCIONAL]")
         
@@ -80,16 +81,16 @@ def cadastra_candidatura():
                 """)
             conexao.commit()
 
-        if nome_empresa:
+        if nome_empresa:    # Adiciona vaga com uma empresa associada
             id_empresa = cursor.execute("SELECT id FROM empresas WHERE nome = ?", (nome_empresa,)).fetchall()[0][0]
             msg_insert = (
-                "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes, idEmpresa) VALUES\n"
-                f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}', '{id_empresa}')"
+                "INSERT INTO vagas (nome, link, data_aplicacao, status, descricao, idEmpresa) VALUES\n"
+                f"('{nome}', '{link}', '{data}', '{status}', '{descricao}', '{id_empresa}')"
             )
         else:
             msg_insert = (
-            "INSERT INTO vagas (nome, link, data_aplicacao, status, detalhes) VALUES\n"
-            f"('{nome}', '{link}', '{data}', '{status}', '{detalhes}')"
+            "INSERT INTO vagas (nome, link, data_aplicacao, status, descricao) VALUES\n"
+            f"('{nome}', '{link}', '{data}', '{status}', '{descricao}')"
             )
 
         cursor.execute(msg_insert)
@@ -98,41 +99,45 @@ def cadastra_candidatura():
         conexao.close()
 
     except sqlite3.IntegrityError as e:
+        conexao.close()
         console.print(
             "[bold red]Erro ao cadastrar no banco de dados: Informação duplicada.[/bold red]"
         )
         console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
+        cadastra_candidatura()
 
     except Exception as e:
+        conexao.close()
         console.print("[bold red]Erro inesperado ao cadastrar a vaga.[/bold red]")
         console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
-        console.print("[bold red]Entre em contato com o suporte técnico.[/bold red]")
-        raise CadastroBancoException()
-    finally:
-        conexao.close()
+        cadastra_candidatura()
 
 
 def main():
-    console.print(Panel("[bold magenta]TrackJobs - Gerenciador de Candidaturas[/bold magenta]", expand=False))
-
     inicializa_banco()
 
-    msg_prompt = (
-        "[bold cyan]Escolha uma opção abaixo:[/bold cyan]\n\n"
-        "[green]1[/green] - Cadastrar Candidatura\n"
-        "[green]2[/green] - Editar Status da Candidatura\n"
-        "[green]3[/green] - Editar Candidatura\n"
-        "[green]4[/green] - Remover Candidatura\n"
-    )
-    opcao = IntPrompt.ask(msg_prompt, choices=['1', '2', '3', '4'])
+    while True:
+        console.print(Panel("[bold magenta]TrackJobs - Gerenciador de Candidaturas[/bold magenta]", expand=False))
 
-    if opcao == CADASTRAR_CANDIDATURA:
-        cadastra_candidatura()
-    elif opcao == EDITAR_STATUS:
-        pass
-    elif opcao == EDITAR_CANDIDATURA:
-        pass
-    else:
-        pass
+        msg_prompt = (
+            "[bold cyan]Escolha uma opção abaixo:[/bold cyan]\n\n"
+            "[green]1[/green] - Cadastrar Candidatura\n"
+            "[green]2[/green] - Editar Status da Candidatura\n"
+            "[green]3[/green] - Editar Candidatura\n"
+            "[green]4[/green] - Remover Candidatura\n"
+            "[green]5[/green] - Fechar Ferramenta\n"
+        )
+        opcao = IntPrompt.ask(msg_prompt, choices=['1', '2', '3', '4', '5'])
+
+        if opcao == CADASTRAR_CANDIDATURA:
+            cadastra_candidatura()
+        elif opcao == EDITAR_STATUS:
+            pass
+        elif opcao == EDITAR_CANDIDATURA:
+            pass
+        elif opcao == REMOVER_CANDIDATURA:
+            pass
+        else:
+            break
 
 main()

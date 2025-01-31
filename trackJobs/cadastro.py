@@ -13,11 +13,15 @@ def obter_site_empresa():
         if not site_empresa or validators.url(site_empresa):
             return site_empresa
         else:
-            print("[red]URL inválida. Digite um link válido ou deixe em branco.[/red]")
+            print("[bold red]URL inválida. Digite um link válido ou deixe em branco.[/bold red]")
 
 
 def cadastra_candidatura():
+    console.print("[bold magenta]\nCadastro[/bold magenta]\n")
+
     nome = click.prompt("Qual o nome da vaga?[OBRIGATÓRIO]")
+    nome = nome.strip().lower()
+
     link = click.prompt("Qual o link da vaga?[OBRIGATÓRIO]") # tem que ser unique
     data = Prompt.ask("Qual foi a data de aplicação?[OPCIONAL]")
     status = Prompt.ask(
@@ -27,6 +31,7 @@ def cadastra_candidatura():
         show_default=False)
     descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")
     nome_empresa = Prompt.ask("Qual o nome da empresa?[OPCIONAL]")
+    nome_empresa = nome_empresa.strip().lower()
 
     try:
         conexao = sqlite3.connect("track_jobs.db")
@@ -60,15 +65,17 @@ def cadastra_candidatura():
 
         cursor.execute(msg_insert)
         conexao.commit()
-        console.print("[bold green]Cadastro realizado com sucesso![/bold green]")
+        console.print("[bold green]\nCadastro realizado com sucesso!\n[/bold green]")
         conexao.close()
 
     except sqlite3.IntegrityError as e:
         conexao.close()
+        erro_duplicado = str(e)
+        console.print(f"[bold yellow]Detalhes:[/bold yellow] {erro_duplicado}")
+        erro_duplicado = erro_duplicado.split(" ")[-1]
         console.print(
-            "[bold red]Erro ao cadastrar no banco de dados: Informação duplicada.[/bold red]"
+            f"[bold red]Erro ao cadastrar no banco de dados: {erro_duplicado} já foi cadastrada![/bold red]"
         )
-        console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
         cadastra_candidatura()
 
     except Exception as e:

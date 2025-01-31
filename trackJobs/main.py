@@ -1,15 +1,14 @@
 from rich.console import Console
-from rich.prompt import IntPrompt, Prompt
+from rich.prompt import IntPrompt
 from rich.panel import Panel
 import sqlite3
-from exceptions import InicializacaoBancoException, CadastroBancoException
+from exceptions import InicializacaoBancoException
 from cadastro import cadastra_candidatura
 
 CADASTRAR_CANDIDATURA = 1
 EDITAR_STATUS = 2 
 EDITAR_CANDIDATURA = 3
 REMOVER_CANDIDATURA = 4
-DATA_NULA = '0/0/0'
 
 console = Console()
 
@@ -42,11 +41,7 @@ def inicializa_banco():
         conexao.close()
 
     except Exception as e:
-        console.print(
-            "[bold red]Erro ao inicializar o banco de dados.[/bold red] Verifique se há problemas de permissão ou formato do banco."
-        )
         console.print(f"[bold yellow]Erro técnico:[/bold yellow] {str(e)}")
-        console.print("[bold red]Encerrando o programa...[/bold red]")
         raise InicializacaoBancoException("Erro ao inicializar o banco de dados")
 
 

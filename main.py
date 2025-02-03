@@ -1,16 +1,19 @@
-from rich.console import Console
-from rich.prompt import IntPrompt
-from rich.panel import Panel
 import sqlite3
-from exceptions import InicializacaoBancoException
-from cadastro import cadastra_candidatura
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import IntPrompt
+
+from trackJobs.cadastro import cadastra_candidatura
+from trackJobs.exceptions import InicializacaoBancoException
 
 CADASTRAR_CANDIDATURA = 1
-EDITAR_STATUS = 2 
+EDITAR_STATUS = 2
 EDITAR_CANDIDATURA = 3
 REMOVER_CANDIDATURA = 4
 
 console = Console()
+
 
 def inicializa_banco():
     try:
@@ -36,7 +39,7 @@ def inicializa_banco():
             idEmpresa INTEGER,
             FOREIGN KEY(idEmpresa) REFERENCES empresas(id)
             )"""
-            )
+        )
 
         conexao.close()
 
@@ -49,7 +52,12 @@ def menu():
     inicializa_banco()
 
     while True:
-        console.print(Panel("[bold magenta]TrackJobs - Gerenciador de Candidaturas[/bold magenta]", expand=False))
+        console.print(
+            Panel(
+                "[bold magenta]TrackJobs - Gerenciador de Candidaturas[/bold magenta]",
+                expand=False,
+            )
+        )
 
         msg_prompt = (
             "[bold cyan]Escolha uma opção abaixo:[/bold cyan]\n\n"
@@ -59,7 +67,7 @@ def menu():
             "[green]4[/green] - Remover Candidatura\n"
             "[green]5[/green] - Fechar Ferramenta\n"
         )
-        opcao = IntPrompt.ask(msg_prompt, choices=['1', '2', '3', '4', '5'])
+        opcao = IntPrompt.ask(msg_prompt, choices=["1", "2", "3", "4", "5"])
 
         if opcao == CADASTRAR_CANDIDATURA:
             cadastra_candidatura()
@@ -71,5 +79,6 @@ def menu():
             pass
         else:
             break
+
 
 menu()

@@ -1,4 +1,4 @@
-from fixtures import dados_cadastro_sucesso_sem_empresa, dados_cadastro_sem_empresa_link_duplicado, dados_cadastro_sem_empresa_link_invalido
+from .fixtures import dados_cadastro_sucesso_sem_empresa, dados_cadastro_sem_empresa_link_duplicado, dados_cadastro_sem_empresa_link_invalido
 import pytest
 
 @pytest.fixture

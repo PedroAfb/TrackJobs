@@ -50,14 +50,6 @@ def test_obter_link_vaga(mock_input, expected_output):
     remove_banco_teste()
 
 
-
-
-
-'''
-Cadastro com sucesso
-link duplicado
-link com formato inválido
-'''
 #Testes com o cadastro de empresa
 '''
 cadastro com sucesso

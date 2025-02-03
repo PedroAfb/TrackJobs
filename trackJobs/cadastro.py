@@ -132,7 +132,7 @@ def cadastra_vaga(conexao: Connection, cursor: Cursor, dados_candidatura: dict):
             "INSERT INTO vagas "
             "(nome, link, status, descricao) VALUES\n"
             f"('{dados_candidatura['nome']}', '{dados_candidatura['link']}', "
-            "'{dados_candidatura['status']}', '{dados_candidatura['descricao']}')"
+            f"'{dados_candidatura['status']}', '{dados_candidatura['descricao']}')"
         )
 
     cursor.execute(msg_insert_vagas)

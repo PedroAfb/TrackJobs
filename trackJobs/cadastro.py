@@ -13,6 +13,12 @@ console = Console()
 VOLTAR_MENU = 6
 
 
+def verificar_saida(valor):
+    """Verifica se o usuário deseja retornar ao menu."""
+    if valor.strip() == "6":
+        raise RetornarMenuException
+
+
 def obter_site_empresa(cursor: Cursor):
     while True:
         site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
@@ -54,12 +60,20 @@ def obter_link_vaga(db_path="track_jobs.db"):
                 "[bold red]Digite um link válido.[/bold red]"
             )
             console.print(msg)
-            console.print("Caso queira retornar ao menu principal, digite 6")
+            msg = (
+                "[bold magenta]Caso queira retornar ao menu principal[/bold magenta]"
+                "[bold magenta], digite 6[/bold magenta]"
+            )
+            console.print(msg)
 
             conexao.close()
         else:
             console.print("[bold red]URL inválida. Digite um link válido.[/bold red]")
-            console.print("Caso queira retornar ao menu principal, digite 6")
+            msg = (
+                "[bold magenta]Caso queira retornar ao menu principal[/bold magenta]"
+                "[bold magenta], digite 6[/bold magenta]"
+            )
+            console.print(msg)
 
     raise RetornarMenuException
 
@@ -72,22 +86,34 @@ def verifica_empresa_sql(cursor: Cursor, nome_empresa: str):
 def coleta_dados_vaga():
     dados_candidatura = dict()
 
-    nome = click.prompt(
-        "Qual o nome da vaga?[OBRIGATÓRIO]\n" "Caso queira retornar ao menu, digite 6"
-    )
+    nome = click.prompt("Qual o nome da vaga?[OBRIGATÓRIO]\n")
+    verificar_saida(nome)
     dados_candidatura["nome"] = nome.strip().lower()
 
     dados_candidatura["link"] = obter_link_vaga()
-    dados_candidatura["status"] = Prompt.ask(
+
+    status = Prompt.ask(
         "Qual o status da candidatura?[OPCIONAL]",
-        choices=["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"],
+        choices=[
+            "candidatar-se",
+            "em análise",
+            "entrevista",
+            "rejeitado",
+            "aceito",
+            "6",
+        ],
         default="candidatar-se",
         show_default=False,
     )
-    dados_candidatura["descricao"] = Prompt.ask(
-        "Coloque descrição sobre a vaga[OPCIONAL]"
-    )
+    verificar_saida(status)
+    dados_candidatura["status"] = status
+
+    descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")
+    verificar_saida(descricao)
+    dados_candidatura["descricao"] = descricao
+
     nome_empresa = Prompt.ask("Qual o nome da empresa?[OPCIONAL]")
+    verificar_saida(nome_empresa)
     dados_candidatura["nome_empresa"] = nome_empresa.strip().lower()
 
     return dados_candidatura
@@ -141,6 +167,9 @@ def cadastra_vaga(conexao: Connection, cursor: Cursor, dados_candidatura: dict):
 
 def cadastra_candidatura(db_path="track_jobs.db", teste=False):
     console.print("[bold magenta]\nCadastro[/bold magenta]\n")
+    console.print(
+        "[bold magenta]Caso queira retornar ao menu, digite 6[/bold magenta]\n"
+    )
 
     try:
         dados_candidatura = coleta_dados_vaga()

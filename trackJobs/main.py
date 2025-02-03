@@ -31,7 +31,7 @@ def inicializa_banco():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             link TEXT NOT NULL UNIQUE,
-            status TEXT DEFAULT 'em análise',
+            status TEXT DEFAULT 'candidatar-se',
             descricao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY(idEmpresa) REFERENCES empresas(id)
@@ -45,7 +45,7 @@ def inicializa_banco():
         raise InicializacaoBancoException("Erro ao inicializar o banco de dados")
 
 
-def main():
+def menu():
     inicializa_banco()
 
     while True:
@@ -72,4 +72,4 @@ def main():
         else:
             break
 
-main()
+menu()

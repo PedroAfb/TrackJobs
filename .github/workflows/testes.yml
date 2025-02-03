@@ -24,7 +24,7 @@ jobs:
         run: pip install poetry
 
       - name: 📦 Instalar dependências do projeto
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-root
 
       - name: 🔍 Rodar testes com pytest
         run: poetry run pytest --disable-warnings --maxfail=1

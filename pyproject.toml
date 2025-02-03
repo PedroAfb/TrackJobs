@@ -12,6 +12,7 @@ click = "^8.1.8"
 commitizen = "^4.1.0"
 validators = "^0.34.0"
 pytest = "^8.3.4"
+pre-commit = "^4.1.0"
 
 
 [build-system]

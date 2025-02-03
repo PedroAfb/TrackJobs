@@ -1,0 +1,30 @@
+name: Executar Testes Unitários
+
+on:
+  push:  # Roda em qualquer push
+  pull_request:
+    branches:
+      -main
+      -develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Usa o Ubuntu mais recente
+
+    steps:
+      - name: 📥 Clonar repositório
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"  # Altere se necessário
+
+      - name: 📦 Instalar Poetry
+        run: pip install poetry
+
+      - name: 📦 Instalar dependências do projeto
+        run: poetry install --no-interaction
+
+      - name: 🔍 Rodar testes com pytest
+        run: poetry run pytest --disable-warnings --maxfail=1

@@ -4,6 +4,7 @@ from rich.console import Console
 import click
 import sqlite3
 from sqlite3 import Connection, Cursor
+from .exceptions import RetornarMenuException
 
 console = Console()
 VOLTAR_MENU = 6
@@ -17,11 +18,36 @@ def obter_site_empresa(cursor: Cursor):
             return None
         elif validators.url(site_empresa):
             cursor.execute("SELECT 1 FROM empresas WHERE site = ?", (site_empresa,))
-            if cursor.fetchone():
-                raise sqlite3.IntegrityError("empresas.site")
-            return site_empresa
+            if not cursor.fetchone():
+                return site_empresa
+            console.print("[bold red]Essa URL já foi cadastrada. Digite um link válido ou deixe em branco.[/bold red]")
+
         else:
-            print("[bold red]URL inválida. Digite um link válido ou deixe em branco.[/bold red]")
+            console.print("[bold red]URL inválida. Digite um link válido ou deixe em branco.[/bold red]")
+
+
+def obter_link_vaga(db_path="track_jobs.db"):
+    link = None
+    while link != '6':
+        link = Prompt.ask("Qual o link da vaga?[OBRIGATÓRIO]")
+
+        if validators.url(link):
+            conexao = sqlite3.connect(db_path)
+            cursor = conexao.cursor()
+            cursor.execute("SELECT 1 FROM vagas WHERE link = ?", (link,))
+
+            if not cursor.fetchone():
+                return link
+            
+            console.print("[bold red]Essa URL já foi cadastrada. Digite um link válido.[/bold red]")
+            console.print("Caso queira retornar ao menu principal, digite 6")
+
+            conexao.close()
+        else:
+            console.print("[bold red]URL inválida. Digite um link válido.[/bold red]")
+            console.print("Caso queira retornar ao menu principal, digite 6")
+
+    raise RetornarMenuException
 
 
 def verifica_empresa_sql(cursor: Cursor, nome_empresa: str):
@@ -35,11 +61,9 @@ def coleta_dados_vaga():
     nome = click.prompt(
         "Qual o nome da vaga?[OBRIGATÓRIO]\n"
         "Caso queira retornar ao menu, digite 6")
-    if int(nome) == VOLTAR_MENU:
-        return
     dados_candidatura["nome"] = nome.strip().lower()
 
-    dados_candidatura["link"] = click.prompt("Qual o link da vaga?[OBRIGATÓRIO]") # tem que ser unique
+    dados_candidatura["link"] = obter_link_vaga()
     dados_candidatura["status"] = Prompt.ask(
         "Qual o status da candidatura?[OPCIONAL]",
         choices=["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"],
@@ -81,13 +105,13 @@ def cadastra_vaga(conexao: Connection, cursor: Cursor, dados_candidatura: dict):
     conexao.commit()
 
 
-def cadastra_candidatura():
+def cadastra_candidatura(db_path="track_jobs.db", teste=False):
     console.print("[bold magenta]\nCadastro[/bold magenta]\n")
 
-    dados_candidatura = coleta_dados_vaga()
-
     try:
-        conexao = sqlite3.connect("track_jobs.db")
+        dados_candidatura = coleta_dados_vaga()
+
+        conexao = sqlite3.connect(db_path)
         cursor = conexao.cursor()
 
         nome_empresa = dados_candidatura["nome_empresa"]
@@ -102,6 +126,9 @@ def cadastra_candidatura():
         console.print("[bold green]\nCadastro realizado com sucesso!\n[/bold green]")
         conexao.close()
 
+    except RetornarMenuException as e:
+        pass
+
     except sqlite3.IntegrityError as e:
         conexao.close()
         erro_duplicado = str(e)
@@ -110,6 +137,8 @@ def cadastra_candidatura():
         console.print(
             f"[bold red]Erro ao cadastrar no banco de dados: {campo_duplicado} já foi cadastrada![/bold red]"
         )
+        if teste:
+            raise e
         cadastra_candidatura()
 
     except Exception as e:

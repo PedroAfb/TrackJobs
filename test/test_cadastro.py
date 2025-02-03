@@ -1,4 +1,4 @@
-from db_test import criar_banco_teste, remove_banco_teste
+from .db_test import criar_banco_teste, remove_banco_teste
 from unittest.mock import patch
 from trackJobs.exceptions import RetornarMenuException
 from trackJobs.cadastro import cadastra_candidatura, obter_link_vaga

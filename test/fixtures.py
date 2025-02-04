@@ -1,4 +1,4 @@
-dados_cadastro_sucesso_sem_empresa = {
+dados_cadastro_sem_empresa = {
     "nome": "vaga teste",
     "link": "https://example.com",
     "status": "candidatar-se",

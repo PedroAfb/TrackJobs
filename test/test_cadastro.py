@@ -17,9 +17,9 @@ def realiza_cadastro_sem_empresa_com_sucesso(dados_candidatura):
         cadastra_candidatura(db_path="track_jobs_test.db")
 
 
-def test_cadastro_vaga_sem_empresa(dict_cadastro_sucesso_sem_empresa, capsys):
+def test_cadastro_vaga_sem_empresa(dict_cadastro_sem_empresa, capsys):
     criar_banco_teste()
-    realiza_cadastro_sem_empresa_com_sucesso(dict_cadastro_sucesso_sem_empresa)
+    realiza_cadastro_sem_empresa_com_sucesso(dict_cadastro_sem_empresa)
     captured_stdout = capsys.readouterr()
     assert "Cadastro da vaga realizado com sucesso!" in captured_stdout.out
 
@@ -27,13 +27,15 @@ def test_cadastro_vaga_sem_empresa(dict_cadastro_sucesso_sem_empresa, capsys):
 
 
 def test_cadastro_vaga_sem_empresa_link_duplicado(
-    dict_cadastro_sucesso_sem_empresa, dict_cadastro_sem_empresa_link_duplicado, capsys
+    dict_cadastro_sem_empresa, dict_cadastro_sem_empresa_link_duplicado, capsys
 ):
     criar_banco_teste()
-    realiza_cadastro_sem_empresa_com_sucesso(dict_cadastro_sucesso_sem_empresa)
+    # Realiza o primeiro cadastro
+    realiza_cadastro_sem_empresa_com_sucesso(dict_cadastro_sem_empresa)
     captured_stdout = capsys.readouterr()
     assert "Cadastro da vaga realizado com sucesso!" in captured_stdout.out
 
+    # Realiza o segundo cadastro tentando cadastrar o mesmo link
     with patch(
         "trackJobs.cadastro.coleta_dados_vaga",
         return_value=dict_cadastro_sem_empresa_link_duplicado,
@@ -59,7 +61,14 @@ def test_cadastro_vaga_sem_empresa_link_duplicado(
         (["6"], RetornarMenuException),  # Usuário deseja sair
     ],
 )
-def test_obter_link_vaga(mock_input, expected_output):
+def test_validacao_link_vaga_no_prompt(mock_input, expected_output):
+    """
+    Testa a validação do link da vaga durante a entrada do usuário no prompt.
+
+    - Se o link for inválido ou duplicado, a função deve levantar RetornarMenuException.
+    - Se o link for válido, a função deve retornar corretamente o link informado.
+
+    """
     criar_banco_teste()
     with patch("trackJobs.cadastro.Prompt.ask", side_effect=mock_input):
         if expected_output == RetornarMenuException:
@@ -101,16 +110,20 @@ def test_cadastro_vaga_com_empresa_cadastrada(
     dict_cadastro_com_empresa, dict_cadastro_com_empresa2, capsys
 ):
     criar_banco_teste()
+    # Realiza o primeiro cadastro
     realiza_cadastro_com_empresa(dict_cadastro_com_empresa)
     captured_stdout = capsys.readouterr()
     assert "Cadastro da empresa realizado com sucesso" in captured_stdout.out
     assert "Cadastro da vaga realizado com sucesso!" in captured_stdout.out
 
-    mock_dados_empresa = realiza_cadastro_com_empresa(dict_cadastro_com_empresa2)
+    # Realiza outro cadastro de vaga com a mesma empresa
+    funcao_coleta_dados_empresa = realiza_cadastro_com_empresa(
+        dict_cadastro_com_empresa2
+    )
 
     captured_stdout = capsys.readouterr()
     assert "Cadastro da vaga realizado com sucesso!" in captured_stdout.out
-    mock_dados_empresa.assert_not_called()
+    funcao_coleta_dados_empresa.assert_not_called()
 
     remove_banco_teste()
 

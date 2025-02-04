@@ -50,7 +50,7 @@ def obter_link_vaga(db_path="track_jobs.db"):
 
         if validators.url(link):
             conexao_db = sqlite3.connect(db_path)
-            cursor_db = conexao_db.cursor_db()
+            cursor_db = conexao_db.cursor()
             cursor_db.execute("SELECT 1 FROM vagas WHERE link = ?", (link,))
 
             if not cursor_db.fetchone():
@@ -173,7 +173,7 @@ def cadastra_candidatura(db_path="track_jobs.db", teste=False):
         dados_candidatura = coleta_dados_vaga()
 
         conexao_db = sqlite3.connect(db_path)
-        cursor_db = conexao_db.cursor_db()
+        cursor_db = conexao_db.cursor()
 
         nome_empresa = dados_candidatura["nome_empresa"]
         empresa_existe = verifica_empresa_sql(cursor_db, nome_empresa)

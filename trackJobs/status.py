@@ -4,10 +4,13 @@ import sqlite3
 import questionary
 from rich.console import Console
 
+from .exceptions import RetornarMenuException
+
 console = Console()
 MOVER_BAIXO = curses.KEY_DOWN
 MOVER_CIMA = curses.KEY_UP
 CANDIDATURA_SELECIONADA = 10
+VOLTAR_MENU = 27
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
 
 
@@ -39,7 +42,8 @@ def menu_candidaturas(tela, candidaturas: list):
         itens_exibidos = max_linhas - 5
         msg = (
             "Selecione uma candidatura para editar "
-            "(Setas para navegar, Enter para selecionar)"
+            "(Setas para navegar, Enter para selecionar "
+            "e ESC para retornar ao menu principal)"
         )
         tela.addstr(
             0,
@@ -91,6 +95,9 @@ def menu_candidaturas(tela, candidaturas: list):
         elif entrada_user == CANDIDATURA_SELECIONADA:
             tela.clear()
             return index_candidatura_atual
+        elif entrada_user == VOLTAR_MENU:
+            tela.clear()
+            raise RetornarMenuException
 
 
 def menu_status(candidatura):
@@ -118,15 +125,19 @@ def atualiza_cand(candidatura, novo_status):
 
 
 def edita_status(tela):
-    candidaturas = get_candidaturas()
+    try:
+        candidaturas = get_candidaturas()
 
-    index_candidatura = menu_candidaturas(tela, candidaturas)
+        index_candidatura = menu_candidaturas(tela, candidaturas)
 
-    cand_selecionada = candidaturas[index_candidatura]
-    novo_status = menu_status(cand_selecionada)
-    atualiza_cand(cand_selecionada, novo_status)
+        cand_selecionada = candidaturas[index_candidatura]
+        novo_status = menu_status(cand_selecionada)
+        atualiza_cand(cand_selecionada, novo_status)
 
-    tela.clear()
-    tela.addstr(5, 5, f"✅ Status atualizado para: {novo_status}", curses.A_BOLD)
-    tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
-    tela.getch()  # Espera pressionar uma tecla
+        tela.clear()
+        tela.addstr(5, 5, f"✅ Status atualizado para: {novo_status}", curses.A_BOLD)
+        tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
+        tela.getch()  # Espera pressionar uma tecla
+
+    except RetornarMenuException:
+        pass

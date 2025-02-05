@@ -58,7 +58,7 @@ def obter_link_vaga(db_path="track_jobs.db"):
 
             msg = (
                 "[bold red]Essa URL já foi cadastrada. [/bold red]"
-                "[bold red]Digite um link válido.[/bold red]"
+                "[bold red]Digite um link válido.\n[/bold red]"
                 "[bold magenta]Caso queira retornar ao menu principal[/bold magenta]"
                 "[bold magenta], digite 6[/bold magenta]"
             )
@@ -67,7 +67,7 @@ def obter_link_vaga(db_path="track_jobs.db"):
             conexao_db.close()
         else:
             msg = (
-                "[bold red]URL inválida. Digite um link válido.[/bold red]"
+                "[bold red]URL inválida. Digite um link válido.\n[/bold red]"
                 "[bold magenta]Caso queira retornar ao menu principal[/bold magenta]"
                 "[bold magenta], digite 6[/bold magenta]"
             )
@@ -189,7 +189,6 @@ def cadastra_candidatura(db_path="track_jobs.db", teste=False):
         conexao_db.close()
 
     except RetornarMenuException:
-        conexao_db.close()
         pass
 
     except sqlite3.IntegrityError as e:

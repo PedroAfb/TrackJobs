@@ -1,3 +1,4 @@
+import curses
 import sqlite3
 
 from rich.console import Console
@@ -6,6 +7,7 @@ from rich.prompt import IntPrompt
 
 from trackJobs.cadastro import cadastra_candidatura
 from trackJobs.exceptions import InicializacaoBancoException
+from trackJobs.status import edita_status
 
 CADASTRAR_CANDIDATURA = 1
 EDITAR_STATUS = 2
@@ -34,7 +36,9 @@ def inicializa_banco():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             link TEXT NOT NULL UNIQUE,
-            status TEXT DEFAULT 'candidatar-se',
+            status TEXT DEFAULT 'candidatar-se'
+            CHECK(status IN
+            ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
             descricao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY(idEmpresa) REFERENCES empresas(id)
@@ -72,7 +76,7 @@ def menu():
         if opcao == CADASTRAR_CANDIDATURA:
             cadastra_candidatura()
         elif opcao == EDITAR_STATUS:
-            pass
+            curses.wrapper(edita_status)
         elif opcao == EDITAR_CANDIDATURA:
             pass
         elif opcao == REMOVER_CANDIDATURA:

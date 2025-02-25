@@ -12,9 +12,11 @@ MOVER_CIMA = curses.KEY_UP
 CANDIDATURA_SELECIONADA = 10
 VOLTAR_MENU = 27
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
-FILTRO_LINK = 0
-FILTRO_NOME = 1
+FILTRO_NOME = 0
+FILTRO_LINK = 1
+FILTRO_STATUS = 2
 SEM_FILTRO = -1
+MENU_VAZIO = 3
 
 
 def get_candidaturas(filtro="", tipo_filtro=None):
@@ -32,6 +34,11 @@ def get_candidaturas(filtro="", tipo_filtro=None):
                 "SELECT nome, link, status FROM vagas WHERE nome LIKE ?",
                 (f"%{filtro}%",),
             )
+        elif tipo_filtro == FILTRO_STATUS:
+            cursor.execute(
+                "SELECT nome, link, status FROM vagas WHERE status LIKE ?",
+                (f"%{filtro}%",),
+            )
     else:
         cursor.execute("SELECT nome, link, status FROM vagas")
 
@@ -44,8 +51,10 @@ def get_candidaturas(filtro="", tipo_filtro=None):
 
 
 def menu_candidaturas(tela, opcoes_menu: list):
-    opcoes_menu.insert(0, "Filtrar por nome")
+    opcoes_menu.insert(0, "Filtrar por status")
     opcoes_menu.insert(0, "Filtrar por link")
+    opcoes_menu.insert(0, "Filtrar por nome")
+
     curses.curs_set(0)  # Oculta o cursor no terminal para não aparecer piscando
     tela.keypad(True)
     tela.clear()
@@ -113,6 +122,8 @@ def menu_candidaturas(tela, opcoes_menu: list):
                 curses.A_UNDERLINE,
             )
 
+        if len(opcoes_menu) == MENU_VAZIO:
+            tela.addstr(i + 2, 2, "Nenhuma candidatura encontrada", curses.A_BOLD)
         entrada_user = tela.getch()  # Aguarda entrada do teclado
 
         # Movimentação da seleção para cima e para baixo
@@ -159,7 +170,12 @@ def edita_status(tela):
     try:
         index_candidatura = SEM_FILTRO
 
-        while index_candidatura in (FILTRO_LINK, FILTRO_NOME, SEM_FILTRO):
+        while index_candidatura in (
+            FILTRO_LINK,
+            FILTRO_NOME,
+            FILTRO_STATUS,
+            SEM_FILTRO,
+        ):
             if index_candidatura == FILTRO_LINK:
                 filtro_link = questionary.text(
                     "\nDigite o link da candidatura para filtrar:\n"
@@ -173,6 +189,14 @@ def edita_status(tela):
                 ).ask()
                 candidaturas = get_candidaturas(
                     filtro=filtro_nome, tipo_filtro=FILTRO_NOME
+                )
+            elif index_candidatura == FILTRO_STATUS:
+                filtro_status = questionary.select(
+                    "\nSelecione o status da candidatura para filtrar:\n",
+                    choices=OPCOES_STATUS,
+                ).ask()
+                candidaturas = get_candidaturas(
+                    filtro=filtro_status, tipo_filtro=FILTRO_STATUS
                 )
             else:
                 candidaturas = get_candidaturas()

@@ -19,8 +19,8 @@ SEM_FILTRO = -1
 MENU_VAZIO = 3
 
 
-def get_candidaturas(filtro="", tipo_filtro=None):
-    conexao = sqlite3.connect("track_jobs.db")
+def get_candidaturas(db_path, filtro="", tipo_filtro=None):
+    conexao = sqlite3.connect(db_path)
     conexao.row_factory = sqlite3.Row  # Configura para retornar dicionários
     cursor = conexao.cursor()
     if filtro:
@@ -151,7 +151,7 @@ def menu_status(candidatura):
     return novo_status
 
 
-def atualiza_cand(candidatura, novo_status):
+def atualiza_cand(db_path, candidatura, novo_status):
     comando = (
         "UPDATE vagas "
         f"SET status='{novo_status}' "
@@ -159,14 +159,14 @@ def atualiza_cand(candidatura, novo_status):
         "LIMIT 1"
     )
 
-    conexao = sqlite3.connect("track_jobs.db")
+    conexao = sqlite3.connect(db_path)
     cursor = conexao.cursor()
     cursor.execute(comando)
     conexao.commit()
     conexao.close()
 
 
-def edita_status(tela):
+def edita_status(tela, db_path="track_jobs.db"):
     try:
         index_candidatura = SEM_FILTRO
 
@@ -181,14 +181,14 @@ def edita_status(tela):
                     "\nDigite o link da candidatura para filtrar:\n"
                 ).ask()
                 candidaturas = get_candidaturas(
-                    filtro=filtro_link, tipo_filtro=FILTRO_LINK
+                    db_path, filtro=filtro_link, tipo_filtro=FILTRO_LINK
                 )
             elif index_candidatura == FILTRO_NOME:
                 filtro_nome = questionary.text(
                     "\nDigite o nome da candidatura para filtrar:\n"
                 ).ask()
                 candidaturas = get_candidaturas(
-                    filtro=filtro_nome, tipo_filtro=FILTRO_NOME
+                    db_path, filtro=filtro_nome, tipo_filtro=FILTRO_NOME
                 )
             elif index_candidatura == FILTRO_STATUS:
                 filtro_status = questionary.select(
@@ -196,16 +196,15 @@ def edita_status(tela):
                     choices=OPCOES_STATUS,
                 ).ask()
                 candidaturas = get_candidaturas(
-                    filtro=filtro_status, tipo_filtro=FILTRO_STATUS
+                    db_path, filtro=filtro_status, tipo_filtro=FILTRO_STATUS
                 )
             else:
-                candidaturas = get_candidaturas()
+                candidaturas = get_candidaturas(db_path)
             index_candidatura = menu_candidaturas(tela, candidaturas)
-            pass
 
         cand_selecionada = candidaturas[index_candidatura]
         novo_status = menu_status(cand_selecionada)
-        atualiza_cand(cand_selecionada, novo_status)
+        atualiza_cand(db_path, cand_selecionada, novo_status)
 
         tela.clear()
         tela.addstr(5, 5, f"✅ Status atualizado para: {novo_status}", curses.A_BOLD)
@@ -214,3 +213,9 @@ def edita_status(tela):
 
     except RetornarMenuException:
         pass
+
+    except Exception as e:
+        tela.clear()
+        tela.addstr(5, 5, f"❌ Ocorreu um erro: {str(e)}", curses.A_BOLD)
+        tela.addstr(7, 5, "Voltando ao menu principal...")
+        raise RetornarMenuException

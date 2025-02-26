@@ -243,7 +243,7 @@ def edita_status(tela, db_path="track_jobs.db"):
         index_candidatura = FILTROS["nenhum"]
 
         while index_candidatura in FILTROS.values():
-            candidaturas = filtra_candidaturas(tela, db_path, index_candidatura)
+            candidaturas = filtra_candidaturas(db_path, index_candidatura)
             index_candidatura = menu_candidaturas(tela, candidaturas)
 
         # Seleciona a candidatura e atualiza o status

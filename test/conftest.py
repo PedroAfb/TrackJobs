@@ -9,8 +9,8 @@ from .fixtures import dados_cadastro_sem_empresa
 from .fixtures import dados_cadastro_sem_empresa_link_duplicado
 from .fixtures import dados_cadastro_sem_empresa_link_invalido
 from .fixtures import dados_todas_candidaturas
+from .fixtures import mensagem_sucesso_status
 from .fixtures import nenhum_candidatura_printada
-from .fixtures import status_printado
 from .fixtures import todas_candidaturas_printadas
 
 
@@ -70,5 +70,5 @@ def esperado_nenhuma_candidatura_printada():
 
 
 @pytest.fixture
-def esperado_status_printado():
-    return status_printado
+def esperado_mensagem_sucesso():
+    return mensagem_sucesso_status

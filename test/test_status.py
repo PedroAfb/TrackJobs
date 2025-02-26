@@ -36,7 +36,7 @@ def verifica_saida_esperada(esperado, arquivo="saida_teste.txt"):
 
 @patch("trackJobs.status.menu_candidaturas", return_value=3)
 @patch("trackJobs.status.menu_status", return_value="entrevista")
-def test_edicao_status(mock_atualiza_cand, mock_menu_status, esperado_status_printado):
+def test_edicao_status(mock_atualiza_cand, mock_menu_status, esperado_mensagem_sucesso):
     criar_banco_teste_com_dados()
 
     with open("saida_teste.txt", "w") as saida:
@@ -47,12 +47,12 @@ def test_edicao_status(mock_atualiza_cand, mock_menu_status, esperado_status_pri
     mock_atualiza_cand.assert_called_once()
     mock_menu_status.assert_called_once()
 
-    verifica_saida_esperada(esperado_status_printado)
+    verifica_saida_esperada(esperado_mensagem_sucesso)
 
-    candidatura = get_candidaturas(
+    candidatura_alterada = get_candidaturas(
         "track_jobs_test.db", filtro="Desenvolvedor Mobile", tipo_filtro=FILTROS["nome"]
     )
-    assert candidatura[0]["status"] == "entrevista"
+    assert candidatura_alterada[0]["status"] == "entrevista"
 
     remove_banco_teste()
 

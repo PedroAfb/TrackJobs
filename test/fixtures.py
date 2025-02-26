@@ -154,7 +154,7 @@ nenhum_candidatura_printada = [
 ]
 
 
-status_printado = [
+mensagem_sucesso_status = [
     "✅ Status atualizado para: entrevista",
     "Pressione qualquer tecla para voltar ao menu principal",
 ]

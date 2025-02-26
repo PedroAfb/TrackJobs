@@ -8,9 +8,7 @@ from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
 from trackJobs.status import CANDIDATURA_SELECIONADA
 from trackJobs.status import edita_status
-from trackJobs.status import FILTRO_LINK
-from trackJobs.status import FILTRO_NOME
-from trackJobs.status import FILTRO_STATUS
+from trackJobs.status import FILTROS
 from trackJobs.status import get_candidaturas
 from trackJobs.status import menu_candidaturas
 
@@ -52,7 +50,7 @@ def test_edicao_status(mock_atualiza_cand, mock_menu_status, esperado_status_pri
     verifica_saida_esperada(esperado_status_printado)
 
     candidatura = get_candidaturas(
-        "track_jobs_test.db", filtro="Desenvolvedor Mobile", tipo_filtro=FILTRO_NOME
+        "track_jobs_test.db", filtro="Desenvolvedor Mobile", tipo_filtro=FILTROS["nome"]
     )
     assert candidatura[0]["status"] == "entrevista"
 
@@ -88,9 +86,17 @@ def test_candidaturas(candidaturas, esperado, request):
 @pytest.mark.parametrize(
     "filtro, tipo_filtro, esperado",
     [
-        ("Desenvolvedor", FILTRO_NOME, "esperado_candidaturas_filtradas_por_nome"),
-        ("jobs.example.com/1", FILTRO_LINK, "esperado_candidaturas_filtradas_por_link"),
-        ("candidatar-se", FILTRO_STATUS, "esperado_candidaturas_filtradas_por_status"),
+        ("Desenvolvedor", FILTROS["nome"], "esperado_candidaturas_filtradas_por_nome"),
+        (
+            "jobs.example.com/1",
+            FILTROS["link"],
+            "esperado_candidaturas_filtradas_por_link",
+        ),
+        (
+            "candidatar-se",
+            FILTROS["status"],
+            "esperado_candidaturas_filtradas_por_status",
+        ),
     ],
 )
 def test_status_mostra_candidaturas_com_filtros(filtro, tipo_filtro, esperado, request):

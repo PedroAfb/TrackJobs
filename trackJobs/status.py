@@ -186,51 +186,75 @@ def atualiza_cand(db_path, candidatura, novo_status):
     conexao.close()
 
 
+def filtra_candidaturas(db_path, index_candidatura):
+    """
+    Filtra as candidaturas com base na opção selecionada.
+    """
+    if index_candidatura == FILTROS["link"]:
+        filtro_link = questionary.text(
+            "\nDigite o link da candidatura para filtrar:\n"
+        ).ask()
+        return get_candidaturas(
+            db_path, filtro=filtro_link, tipo_filtro=FILTROS["link"]
+        )
+
+    elif index_candidatura == FILTROS["nome"]:
+        filtro_nome = questionary.text(
+            "\nDigite o nome da candidatura para filtrar:\n"
+        ).ask()
+        return get_candidaturas(
+            db_path, filtro=filtro_nome, tipo_filtro=FILTROS["nome"]
+        )
+
+    elif index_candidatura == FILTROS["status"]:
+        filtro_status = questionary.select(
+            "\nSelecione o status da candidatura para filtrar:\n",
+            choices=OPCOES_STATUS,
+        ).ask()
+        return get_candidaturas(
+            db_path, filtro=filtro_status, tipo_filtro=FILTROS["status"]
+        )
+
+    return get_candidaturas(db_path)
+
+
+def exibe_mensagem_sucesso(tela, novo_status):
+    """
+    Exibe uma mensagem de sucesso ao usuário quando o status é atualizado.
+    """
+    tela.clear()
+    tela.addstr(5, 5, f"✅ Status atualizado para: {novo_status}", curses.A_BOLD)
+    tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
+    tela.getch()  # Espera pressionar uma tecla
+
+
+def exibe_mensagem_erro(tela, erro):
+    """
+    Exibe uma mensagem de erro ao usuário em caso de falha.
+    """
+    tela.clear()
+    tela.addstr(5, 5, f"❌ Ocorreu um erro: {str(erro)}", curses.A_BOLD)
+    tela.addstr(7, 5, "Voltando ao menu principal...")
+    raise RetornarMenuException
+
+
 def edita_status(tela, db_path="track_jobs.db"):
     try:
         index_candidatura = FILTROS["nenhum"]
 
         while index_candidatura in FILTROS.values():
-            if index_candidatura == FILTROS["link"]:
-                filtro_link = questionary.text(
-                    "\nDigite o link da candidatura para filtrar:\n"
-                ).ask()
-                candidaturas = get_candidaturas(
-                    db_path, filtro=filtro_link, tipo_filtro=FILTROS["link"]
-                )
-            elif index_candidatura == FILTROS["nome"]:
-                filtro_nome = questionary.text(
-                    "\nDigite o nome da candidatura para filtrar:\n"
-                ).ask()
-                candidaturas = get_candidaturas(
-                    db_path, filtro=filtro_nome, tipo_filtro=FILTROS["nome"]
-                )
-            elif index_candidatura == FILTROS["status"]:
-                filtro_status = questionary.select(
-                    "\nSelecione o status da candidatura para filtrar:\n",
-                    choices=OPCOES_STATUS,
-                ).ask()
-                candidaturas = get_candidaturas(
-                    db_path, filtro=filtro_status, tipo_filtro=FILTROS["status"]
-                )
-            else:
-                candidaturas = get_candidaturas(db_path)
+            candidaturas = filtra_candidaturas(tela, db_path, index_candidatura)
             index_candidatura = menu_candidaturas(tela, candidaturas)
 
+        # Seleciona a candidatura e atualiza o status
         cand_selecionada = candidaturas[index_candidatura]
         novo_status = menu_status(cand_selecionada)
         atualiza_cand(db_path, cand_selecionada, novo_status)
 
-        tela.clear()
-        tela.addstr(5, 5, f"✅ Status atualizado para: {novo_status}", curses.A_BOLD)
-        tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
-        tela.getch()  # Espera pressionar uma tecla
+        exibe_mensagem_sucesso(tela, novo_status)
 
     except RetornarMenuException:
         pass
 
     except Exception as e:
-        tela.clear()
-        tela.addstr(5, 5, f"❌ Ocorreu um erro: {str(e)}", curses.A_BOLD)
-        tela.addstr(7, 5, "Voltando ao menu principal...")
-        raise RetornarMenuException
+        exibe_mensagem_erro(tela, e)

@@ -12,50 +12,124 @@ MOVER_CIMA = curses.KEY_UP
 CANDIDATURA_SELECIONADA = 10
 VOLTAR_MENU = 27
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
-FILTRO_NOME = 0
-FILTRO_LINK = 1
-FILTRO_STATUS = 2
-SEM_FILTRO = -1
+FILTROS = {"nome": 0, "link": 1, "status": 2, "nenhum": -1}
 MENU_VAZIO = 3
 
 
 def get_candidaturas(db_path, filtro="", tipo_filtro=None):
     conexao = sqlite3.connect(db_path)
-    conexao.row_factory = sqlite3.Row  # Configura para retornar dicionários
+    conexao.row_factory = sqlite3.Row  # Retorna os resultados como dicionário
     cursor = conexao.cursor()
-    if filtro:
-        if tipo_filtro == FILTRO_LINK:
-            cursor.execute(
-                "SELECT nome, link, status FROM vagas WHERE link LIKE ?",
-                (f"%{filtro}%",),
-            )
-        elif tipo_filtro == FILTRO_NOME:
-            cursor.execute(
-                "SELECT nome, link, status FROM vagas WHERE nome LIKE ?",
-                (f"%{filtro}%",),
-            )
-        elif tipo_filtro == FILTRO_STATUS:
-            cursor.execute(
-                "SELECT nome, link, status FROM vagas WHERE status LIKE ?",
-                (f"%{filtro}%",),
-            )
-    else:
-        cursor.execute("SELECT nome, link, status FROM vagas")
+    query = "SELECT nome, link, status FROM vagas"
+    params = []
 
-    candidaturas = []
-    for row in cursor.fetchall():
-        candidaturas.append(dict(row))  # os dados de cada candidatura é um dict
+    if tipo_filtro in FILTROS.values():
+        if tipo_filtro == FILTROS["link"]:
+            coluna = "link"
+        elif tipo_filtro == FILTROS["nome"]:
+            coluna = "nome"
+        elif tipo_filtro == FILTROS["status"]:
+            coluna = "status"
+        query += f" WHERE {coluna} LIKE ?"
+        params.append(f"%{filtro}%")
 
+    cursor.execute(query, params)
+    candidaturas = [dict(row) for row in cursor.fetchall()]
     conexao.close()
     return candidaturas
 
 
-def menu_candidaturas(tela, opcoes_menu: list):
-    opcoes_menu.insert(0, "Filtrar por status")
-    opcoes_menu.insert(0, "Filtrar por link")
-    opcoes_menu.insert(0, "Filtrar por nome")
+def exibir_menu(
+    tela, opcoes_menu, index_candidatura_atual, posicao_scroll, itens_exibidos
+):
+    """
+    Exibe o menu com as candidaturas e opções de filtro.
+    """
+    tela.clear()
+    max_linhas, _ = tela.getmaxyx()
 
-    curses.curs_set(0)  # Oculta o cursor no terminal para não aparecer piscando
+    msg = (
+        "Selecione uma candidatura para editar "
+        "(Setas para navegar, Enter para selecionar "
+        "e ESC para retornar ao menu principal)"
+    )
+    tela.addstr(0, 0, msg)
+
+    posicao_scroll = ajustar_scroll(
+        index_candidatura_atual, posicao_scroll, itens_exibidos
+    )
+
+    for i in range(itens_exibidos):
+        cand_pra_print = i + posicao_scroll
+        if cand_pra_print >= len(opcoes_menu):
+            break
+
+        c = opcoes_menu[cand_pra_print]
+        exibir_item(tela, c, i, cand_pra_print, index_candidatura_atual)
+
+    # Exibe o link da candidatura selecionada no rodapé, se aplicável
+    if type(opcoes_menu[index_candidatura_atual]) is not str:
+        exibir_link(tela, max_linhas, opcoes_menu[index_candidatura_atual])
+
+    if len(opcoes_menu) == MENU_VAZIO:
+        tela.addstr(i + 2, 2, "Nenhuma candidatura encontrada", curses.A_BOLD)
+
+
+def ajustar_scroll(index_candidatura_atual, posicao_scroll, itens_exibidos):
+    """
+    Ajusta a posição do scroll para manter o item selecionado visível.
+    """
+    if index_candidatura_atual < posicao_scroll:
+        return index_candidatura_atual
+    elif index_candidatura_atual >= posicao_scroll + itens_exibidos:
+        return index_candidatura_atual - itens_exibidos + 1
+    return posicao_scroll
+
+
+def exibir_item(tela, c, i, cand_pra_print, index_candidatura_atual):
+    """
+    Exibe um item na tela, destacando o item selecionado.
+    """
+    if type(c) is str:
+        estilo = (
+            curses.A_BOLD | curses.A_REVERSE
+            if cand_pra_print == index_candidatura_atual
+            else curses.A_BOLD
+        )
+        tela.addstr(i + 2, 2, f"> {c}", estilo)
+    else:
+        estilo = (
+            curses.A_REVERSE
+            if cand_pra_print == index_candidatura_atual
+            else curses.A_NORMAL
+        )
+        tela.addstr(i + 2, 2, f"  {c['nome']} - {c['status']}", estilo)
+
+
+def exibir_link(tela, max_linhas, candidatura):
+    """
+    Exibe o link da candidatura selecionada.
+    """
+    tela.addstr(max_linhas - 2, 2, "📎 Link da vaga selecionada: ", curses.A_BOLD)
+    tela.addstr(
+        max_linhas - 2,
+        31,
+        candidatura["link"],
+        curses.A_UNDERLINE,
+    )
+
+
+def menu_candidaturas(tela, opcoes_menu: list):
+    """
+    Exibe o menu principal de candidaturas e permite ao usuário navegar e selecionar.
+    """
+    opcoes_menu = [
+        "Filtrar por nome",
+        "Filtrar por link",
+        "Filtrar por status",
+    ] + opcoes_menu
+
+    curses.curs_set(0)  # Oculta o cursor no terminal
     tela.keypad(True)
     tela.clear()
 
@@ -63,67 +137,13 @@ def menu_candidaturas(tela, opcoes_menu: list):
     posicao_scroll = 0
 
     while True:
-        tela.clear()
-
         max_linhas, _ = tela.getmaxyx()
         itens_exibidos = max_linhas - 5
-        msg = (
-            "Selecione uma candidatura para editar "
-            "(Setas para navegar, Enter para selecionar "
-            "e ESC para retornar ao menu principal)"
-        )
-        tela.addstr(
-            0,
-            0,
-            msg,
+
+        exibir_menu(
+            tela, opcoes_menu, index_candidatura_atual, posicao_scroll, itens_exibidos
         )
 
-        # Ajusta o scroll para manter o item selecionado visível
-        if index_candidatura_atual < posicao_scroll:
-            posicao_scroll = index_candidatura_atual
-        elif index_candidatura_atual >= posicao_scroll + itens_exibidos:
-            posicao_scroll = index_candidatura_atual - itens_exibidos + 1
-
-        # Exibe apenas os itens visíveis na tela
-        for i in range(itens_exibidos):
-            cand_pra_print = i + posicao_scroll
-            if cand_pra_print >= len(opcoes_menu):
-                break  # Evita tentar acessar índices fora da lista
-
-            c = opcoes_menu[cand_pra_print]  # Obtém a candidatura correspondente
-            if type(c) is str:
-                if cand_pra_print == index_candidatura_atual:
-                    tela.addstr(
-                        i + 2, 2, f"> {c}", curses.A_BOLD and curses.A_REVERSE
-                    )  # Destaca item selecionado
-
-                else:
-                    tela.addstr(i + 2, 2, f"> {c}", curses.A_BOLD)  #
-
-            else:
-                if cand_pra_print == index_candidatura_atual:
-                    tela.addstr(
-                        i + 2, 2, f"> {c['nome']} - {c['status']}", curses.A_REVERSE
-                    )  # Destaca item selecionado
-                else:
-                    tela.addstr(
-                        i + 2, 2, f"  {c['nome']} - {c['status']}"
-                    )  # Mostra item normal
-
-        # Exibir tooltip no rodapé com o link completo da candidatura selecionada
-        if type(opcoes_menu[index_candidatura_atual]) is not str:
-            tela.addstr(
-                max_linhas - 2, 2, "📎 Link da vaga selecionada: ", curses.A_BOLD
-            )
-            tela.addstr(
-                max_linhas - 2,
-                31,
-                opcoes_menu[index_candidatura_atual]["link"],
-                curses.A_UNDERLINE,
-            )
-
-        if len(opcoes_menu) == MENU_VAZIO:
-            tela.addstr(i + 2, 2, "Nenhuma candidatura encontrada", curses.A_BOLD)
         entrada_user = tela.getch()  # Aguarda entrada do teclado
 
         # Movimentação da seleção para cima e para baixo
@@ -168,35 +188,30 @@ def atualiza_cand(db_path, candidatura, novo_status):
 
 def edita_status(tela, db_path="track_jobs.db"):
     try:
-        index_candidatura = SEM_FILTRO
+        index_candidatura = FILTROS["nenhum"]
 
-        while index_candidatura in (
-            FILTRO_LINK,
-            FILTRO_NOME,
-            FILTRO_STATUS,
-            SEM_FILTRO,
-        ):
-            if index_candidatura == FILTRO_LINK:
+        while index_candidatura in FILTROS.values():
+            if index_candidatura == FILTROS["link"]:
                 filtro_link = questionary.text(
                     "\nDigite o link da candidatura para filtrar:\n"
                 ).ask()
                 candidaturas = get_candidaturas(
-                    db_path, filtro=filtro_link, tipo_filtro=FILTRO_LINK
+                    db_path, filtro=filtro_link, tipo_filtro=FILTROS["link"]
                 )
-            elif index_candidatura == FILTRO_NOME:
+            elif index_candidatura == FILTROS["nome"]:
                 filtro_nome = questionary.text(
                     "\nDigite o nome da candidatura para filtrar:\n"
                 ).ask()
                 candidaturas = get_candidaturas(
-                    db_path, filtro=filtro_nome, tipo_filtro=FILTRO_NOME
+                    db_path, filtro=filtro_nome, tipo_filtro=FILTROS["nome"]
                 )
-            elif index_candidatura == FILTRO_STATUS:
+            elif index_candidatura == FILTROS["status"]:
                 filtro_status = questionary.select(
                     "\nSelecione o status da candidatura para filtrar:\n",
                     choices=OPCOES_STATUS,
                 ).ask()
                 candidaturas = get_candidaturas(
-                    db_path, filtro=filtro_status, tipo_filtro=FILTRO_STATUS
+                    db_path, filtro=filtro_status, tipo_filtro=FILTROS["status"]
                 )
             else:
                 candidaturas = get_candidaturas(db_path)

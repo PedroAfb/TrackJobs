@@ -12,8 +12,8 @@ MOVER_CIMA = curses.KEY_UP
 CANDIDATURA_SELECIONADA = 10
 VOLTAR_MENU = 27
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
-FILTROS = {"nome": 0, "link": 1, "status": 2, "nenhum": -1}
-MENU_VAZIO = 3
+FILTROS = {"limpa_filtro": 0, "nome": 1, "link": 2, "status": 3, "nenhum": -1}
+MENU_VAZIO = 4
 
 
 def get_candidaturas(db_path, filtro="", tipo_filtro=None):
@@ -124,6 +124,7 @@ def menu_candidaturas(tela, opcoes_menu: list):
     Exibe o menu principal de candidaturas e permite ao usuário navegar e selecionar.
     """
     opcoes_menu = [
+        "Limpar filtro",
         "Filtrar por nome",
         "Filtrar por link",
         "Filtrar por status",

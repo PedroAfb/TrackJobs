@@ -6,6 +6,7 @@ from rich.panel import Panel
 from rich.prompt import IntPrompt
 
 from trackJobs.cadastro import cadastra_candidatura
+from trackJobs.edicao import edicao
 from trackJobs.exceptions import InicializacaoBancoException
 from trackJobs.status import edita_status
 
@@ -78,7 +79,7 @@ def menu():
         elif opcao == EDITAR_STATUS:
             curses.wrapper(edita_status)
         elif opcao == EDITAR_CANDIDATURA:
-            pass
+            curses.wrapper(edicao)
         elif opcao == REMOVER_CANDIDATURA:
             pass
         else:

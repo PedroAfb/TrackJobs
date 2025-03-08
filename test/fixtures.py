@@ -94,6 +94,7 @@ dados_todas_candidaturas = [
 todas_candidaturas_printadas = [
     "Selecione uma candidatura para editar (Setas para navegar,"
     " Enter para selecionar e ESC para retornar ao menu principal)",
+    "> Limpar filtro",
     "> Filtrar por nome",
     "> Filtrar por link",
     "> Filtrar por status",
@@ -112,6 +113,7 @@ todas_candidaturas_printadas = [
 candidaturas_filtradas_por_nome = [
     "Selecione uma candidatura para editar (Setas para navegar,"
     " Enter para selecionar e ESC para retornar ao menu principal)",
+    "> Limpar filtro",
     "> Filtrar por nome",
     "> Filtrar por link",
     "> Filtrar por status",
@@ -122,6 +124,7 @@ candidaturas_filtradas_por_nome = [
 candidaturas_filtradas_por_link = [
     "Selecione uma candidatura para editar (Setas para navegar,"
     " Enter para selecionar e ESC para retornar ao menu principal)",
+    "> Limpar filtro",
     "> Filtrar por nome",
     "> Filtrar por link",
     "> Filtrar por status",
@@ -132,6 +135,7 @@ candidaturas_filtradas_por_link = [
 candidaturas_filtradas_por_status = [
     "Selecione uma candidatura para editar (Setas para navegar,"
     " Enter para selecionar e ESC para retornar ao menu principal)",
+    "> Limpar filtro",
     "> Filtrar por nome",
     "> Filtrar por link",
     "> Filtrar por status",
@@ -147,6 +151,7 @@ candidaturas_filtradas_por_status = [
 nenhum_candidatura_printada = [
     "Selecione uma candidatura para editar (Setas para navegar,"
     " Enter para selecionar e ESC para retornar ao menu principal)",
+    "> Limpar filtro",
     "> Filtrar por nome",
     "> Filtrar por link",
     "> Filtrar por status",

@@ -1,11 +1,12 @@
 import curses
 import sqlite3
 
+import questionary
+
 from .exceptions import RetornarMenuException
 from .status import ajustar_scroll
 from .status import CANDIDATURA_SELECIONADA
 from .status import exibe_mensagem_erro
-from .status import exibe_mensagem_sucesso
 from .status import filtra_candidaturas
 from .status import FILTROS
 from .status import menu_candidaturas
@@ -38,15 +39,21 @@ def get_vaga(db_path, link):
 
 
 def exibir_item(tela, campo, dados, i, campo_pra_print, index_campo_atual):
+    altura, largura = tela.getmaxyx()
+    margem = 2  # Margem de segurança para evitar estouro
+
     if campo_pra_print == index_campo_atual:
         msg = f"> {campo.capitalize()}: {dados}\n"
     else:
         msg = f"> {campo.capitalize()}\n"
 
+    largura_disponivel = max(0, largura - margem * 2)  # Garante que não fique negativo
+    msg_truncada = msg[: largura_disponivel + 3]  # Corta a mensagem para caber na tela
+
     estilo = (
         curses.A_REVERSE if campo_pra_print == index_campo_atual else curses.A_NORMAL
     )
-    tela.addstr(i + 2, 2, msg, estilo)
+    tela.addstr(i + 2, 2, msg_truncada, estilo)
 
 
 def menu_edicao(tela, candidatura: dict):
@@ -81,7 +88,7 @@ def menu_edicao(tela, candidatura: dict):
                 tela,
                 campo,
                 candidatura[campo],
-                cont + 1,
+                cont,
                 campo_pra_print,
                 index_campo_atual,
             )
@@ -102,22 +109,56 @@ def menu_edicao(tela, candidatura: dict):
             raise RetornarMenuException
 
 
+def realiza_update(db_path, candidatura, campo, novo_dado):
+    conexao = sqlite3.connect(db_path)
+    cursor = conexao.cursor()
+
+    comando = (
+        f"UPDATE vagas SET {campo} = '{novo_dado}' WHERE link = '{candidatura['link']}'"
+    )
+    cursor.execute(comando)
+    conexao.commit()
+    conexao.close()
+
+
+def exibe_mensagem_sucesso_edicao(tela, campo_atualizado="Status"):
+    """
+    Exibe uma mensagem de sucesso ao usuário quando o status é atualizado.
+    """
+    tela.clear()
+    tela.addstr(
+        5, 5, f"✅ Campo {campo_atualizado} atualizado com sucesso!", curses.A_BOLD
+    )
+    tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
+    tela.getch()  # Espera pressionar uma tecla
+
+
 def edicao(tela, db_path="track_jobs.db"):
     try:
-        index_candidatura = FILTROS["nenhum"]
+        index_candidatura = "nenhum"
 
-        while index_candidatura in FILTROS.values():
+        while index_candidatura in FILTROS.keys():
             candidaturas = filtra_candidaturas(db_path, index_candidatura)
             index_candidatura = menu_candidaturas(tela, candidaturas)
 
         # Seleciona a candidatura e atualiza o status
         cand_selecionada = candidaturas[index_candidatura]
         cand_selecionada = get_vaga(db_path, cand_selecionada["link"])
-        # campo_selecionado = menu_edicao(tela, cand_selecionada)
-        # Informe o novo valor do campo descricao:
+        campo_selecionado = menu_edicao(tela, cand_selecionada)
+        tela.clear()
+        novo_dado = (
+            questionary.text(
+                "\nInforme o novo valor do campo "
+                f"{campo_selecionado.capitalize()}:\n"
+            )
+            .ask()
+            .strip()
+        )
         # Faz update no bando de dados
 
-        exibe_mensagem_sucesso(tela, "Edição realizada com sucesso!")
+        realiza_update(db_path, cand_selecionada, campo_selecionado, novo_dado)
+
+        exibe_mensagem_sucesso_edicao(tela, novo_dado, campo_selecionado.capitalize())
 
     except RetornarMenuException:
         pass

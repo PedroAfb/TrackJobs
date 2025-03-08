@@ -157,7 +157,17 @@ def menu_candidaturas(tela, opcoes_menu: list):
             index_candidatura_atual -= 1
         elif entrada_user == CANDIDATURA_SELECIONADA:
             tela.clear()
-            return index_candidatura_atual
+            if index_candidatura_atual < MENU_VAZIO:
+                return next(
+                    (
+                        chave
+                        for chave, valor in FILTROS.items()
+                        if valor == index_candidatura_atual
+                    ),
+                    None,
+                )
+            else:
+                return index_candidatura_atual - MENU_VAZIO
         elif entrada_user == VOLTAR_MENU:
             tela.clear()
             raise RetornarMenuException
@@ -191,7 +201,7 @@ def filtra_candidaturas(db_path, index_candidatura):
     """
     Filtra as candidaturas com base na opção selecionada.
     """
-    if index_candidatura == FILTROS["link"]:
+    if index_candidatura == "link":
         filtro_link = questionary.text(
             "\nDigite o link da candidatura para filtrar:\n"
         ).ask()
@@ -199,7 +209,7 @@ def filtra_candidaturas(db_path, index_candidatura):
             db_path, filtro=filtro_link, tipo_filtro=FILTROS["link"]
         )
 
-    elif index_candidatura == FILTROS["nome"]:
+    elif index_candidatura == "nome":
         filtro_nome = questionary.text(
             "\nDigite o nome da candidatura para filtrar:\n"
         ).ask()
@@ -207,7 +217,7 @@ def filtra_candidaturas(db_path, index_candidatura):
             db_path, filtro=filtro_nome, tipo_filtro=FILTROS["nome"]
         )
 
-    elif index_candidatura == FILTROS["status"]:
+    elif index_candidatura == "status":
         filtro_status = questionary.select(
             "\nSelecione o status da candidatura para filtrar:\n",
             choices=OPCOES_STATUS,
@@ -219,12 +229,14 @@ def filtra_candidaturas(db_path, index_candidatura):
     return get_candidaturas(db_path)
 
 
-def exibe_mensagem_sucesso(tela, novo_status):
+def exibe_mensagem_sucesso_status(tela, novo_status, campo_atualizado="Status"):
     """
     Exibe uma mensagem de sucesso ao usuário quando o status é atualizado.
     """
     tela.clear()
-    tela.addstr(5, 5, f"✅ Status atualizado para: {novo_status}", curses.A_BOLD)
+    tela.addstr(
+        5, 5, f"✅ {campo_atualizado} atualizado para: {novo_status}", curses.A_BOLD
+    )
     tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
     tela.getch()  # Espera pressionar uma tecla
 
@@ -241,9 +253,9 @@ def exibe_mensagem_erro(tela, erro):
 
 def edita_status(tela, db_path="track_jobs.db"):
     try:
-        index_candidatura = FILTROS["nenhum"]
+        index_candidatura = "nenhum"
 
-        while index_candidatura in FILTROS.values():
+        while index_candidatura in FILTROS.keys():
             candidaturas = filtra_candidaturas(db_path, index_candidatura)
             index_candidatura = menu_candidaturas(tela, candidaturas)
 
@@ -252,7 +264,7 @@ def edita_status(tela, db_path="track_jobs.db"):
         novo_status = menu_status(cand_selecionada)
         atualiza_cand(db_path, cand_selecionada, novo_status)
 
-        exibe_mensagem_sucesso(tela, novo_status)
+        exibe_mensagem_sucesso_status(tela, novo_status)
 
     except RetornarMenuException:
         pass

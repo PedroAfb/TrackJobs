@@ -64,9 +64,11 @@ def criar_banco_teste_com_dados():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             link TEXT UNIQUE NOT NULL,
-            status TEXT DEFAULT 'candidatar-se',
-            data_aplicacao DATE DEFAULT CURRENT_DATE,
-            descricao TEXT,
+            status TEXT DEFAULT 'candidatar-se'
+            CHECK(status IN
+            ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
+            'data de aplicaçao' DATE DEFAULT CURRENT_DATE,
+            descriçao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY (idEmpresa) REFERENCES empresas(id)
         )
@@ -127,7 +129,7 @@ def criar_banco_teste_com_dados():
         (
             "DevOps Engineer",
             "https://jobs.example.com/5",
-            "teste técnico",
+            "rejeitado",
             "Automação e CI/CD",
             microsoft_id,
         ),
@@ -170,7 +172,7 @@ def criar_banco_teste_com_dados():
 
     cursor.executemany(
         """
-        INSERT OR IGNORE INTO vagas (nome, link, status, descricao, idEmpresa)
+        INSERT OR IGNORE INTO vagas (nome, link, status, descriçao, idEmpresa)
         VALUES (?, ?, ?, ?, ?)
     """,
         vagas_teste,

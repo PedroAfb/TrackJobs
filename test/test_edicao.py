@@ -39,7 +39,7 @@ def get_vaga_id(db_path, id):
             "esperado_msg_link",
         ),
         (
-            "data_aplicacao",
+            "data de aplicaçao",
             "2021-10-10",
             "esperado_msg_data",
         ),
@@ -49,7 +49,7 @@ def get_vaga_id(db_path, id):
             "esperado_msg_status",
         ),
         (
-            "descricao",
+            "descriçao",
             "Desenvolver novas features",
             "esperado_msg_descricao",
         ),

@@ -175,7 +175,7 @@ mensagem_sucesso_edicao_link = [
 ]
 
 mensagem_sucesso_edicao_data = [
-    "✅ Campo Data_aplicacao atualizado com sucesso!",
+    "✅ Campo Data de aplicaçao atualizado com sucesso!",
     "Pressione qualquer tecla para voltar ao menu principal",
 ]
 
@@ -185,6 +185,6 @@ mensagem_sucesso_edicao_status = [
 ]
 
 mensagem_sucesso_edicao_descricao = [
-    "✅ Campo Descricao atualizado com sucesso!",
+    "✅ Campo Descriçao atualizado com sucesso!",
     "Pressione qualquer tecla para voltar ao menu principal",
 ]

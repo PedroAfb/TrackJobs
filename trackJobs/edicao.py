@@ -158,7 +158,7 @@ def edicao(tela, db_path="track_jobs.db"):
 
         realiza_update(db_path, cand_selecionada, campo_selecionado, novo_dado)
 
-        exibe_mensagem_sucesso_edicao(tela, novo_dado, campo_selecionado.capitalize())
+        exibe_mensagem_sucesso_edicao(tela, campo_selecionado.capitalize())
 
     except RetornarMenuException:
         pass

@@ -14,7 +14,7 @@ from .status import MOVER_BAIXO
 from .status import MOVER_CIMA
 from .status import VOLTAR_MENU
 
-CAMPOS_VAGA = ["nome", "link", "data_aplicacao", "status", "descricao"]
+CAMPOS_VAGA = ["nome", "link", "data de aplicaçao", "status", "descriçao"]
 
 
 def get_vaga(db_path, link):
@@ -114,7 +114,8 @@ def realiza_update(db_path, candidatura, campo, novo_dado):
     cursor = conexao.cursor()
 
     comando = (
-        f"UPDATE vagas SET {campo} = '{novo_dado}' WHERE link = '{candidatura['link']}'"
+        f"UPDATE vagas SET '{campo}' = "
+        f"'{novo_dado}' WHERE link = '{candidatura['link']}'"
     )
     cursor.execute(comando)
     conexao.commit()

@@ -65,6 +65,7 @@ def criar_banco_teste_com_dados():
             nome TEXT NOT NULL,
             link TEXT UNIQUE NOT NULL,
             status TEXT DEFAULT 'candidatar-se',
+            data_aplicacao DATE DEFAULT CURRENT_DATE,
             descricao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY (idEmpresa) REFERENCES empresas(id)

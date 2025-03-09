@@ -163,3 +163,28 @@ mensagem_sucesso_status = [
     "✅ Status atualizado para: entrevista",
     "Pressione qualquer tecla para voltar ao menu principal",
 ]
+
+mensagem_sucesso_edicao_nome = [
+    "✅ Campo Nome atualizado com sucesso!",
+    "Pressione qualquer tecla para voltar ao menu principal",
+]
+
+mensagem_sucesso_edicao_link = [
+    "✅ Campo Link atualizado com sucesso!",
+    "Pressione qualquer tecla para voltar ao menu principal",
+]
+
+mensagem_sucesso_edicao_data = [
+    "✅ Campo Data_aplicacao atualizado com sucesso!",
+    "Pressione qualquer tecla para voltar ao menu principal",
+]
+
+mensagem_sucesso_edicao_status = [
+    "✅ Campo Status atualizado com sucesso!",
+    "Pressione qualquer tecla para voltar ao menu principal",
+]
+
+mensagem_sucesso_edicao_descricao = [
+    "✅ Campo Descricao atualizado com sucesso!",
+    "Pressione qualquer tecla para voltar ao menu principal",
+]

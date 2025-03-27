@@ -6,11 +6,11 @@ import pytest
 
 from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
-from trackJobs.status import CANDIDATURA_SELECIONADA
+from trackJobs.menu import CANDIDATURA_SELECIONADA
+from trackJobs.menu import FILTROS
 from trackJobs.status import edita_status
-from trackJobs.status import FILTROS
-from trackJobs.status import get_candidaturas
-from trackJobs.status import menu_candidaturas
+from trackJobs.status import MenuStatus
+from trackJobs.utils import get_candidaturas
 
 
 def setup_tela_mock(saida):
@@ -34,17 +34,16 @@ def verifica_saida_esperada(esperado, arquivo="saida_teste.txt"):
         os.remove(arquivo)
 
 
-@patch("trackJobs.status.menu_candidaturas", return_value=4)
-@patch("trackJobs.status.menu_status", return_value="entrevista")
-def test_edicao_status(mock_atualiza_cand, mock_menu_status, esperado_mensagem_sucesso):
+@patch.object(MenuStatus, "menu_candidaturas", return_value=4)
+@patch.object(MenuStatus, "menu_status", return_value="entrevista")
+def test_edicao_status(mock_menu, mock_menu_status, esperado_mensagem_sucesso):
     criar_banco_teste_com_dados()
-
     with open("saida_teste.txt", "w") as saida:
         with patch("curses.curs_set"):
             tela_mock = setup_tela_mock(saida)
             edita_status(tela_mock, db_path="track_jobs_test.db")
 
-    mock_atualiza_cand.assert_called_once()
+    mock_menu.assert_called_once()
     mock_menu_status.assert_called_once()
 
     verifica_saida_esperada(esperado_mensagem_sucesso)
@@ -75,7 +74,7 @@ def test_candidaturas(candidaturas, esperado, request):
     with open("saida_teste.txt", "w") as saida:
         with patch("curses.curs_set"):
             tela_mock = setup_tela_mock(saida)
-            menu_candidaturas(tela_mock, candidaturas)
+            MenuStatus(tela_mock).menu_candidaturas(candidaturas)
 
     esperado_printado = request.getfixturevalue(esperado)
     verifica_saida_esperada(esperado_printado)
@@ -109,7 +108,7 @@ def test_status_mostra_candidaturas_com_filtros(filtro, tipo_filtro, esperado, r
     with open("saida_teste.txt", "w") as saida:
         with patch("curses.curs_set"):
             tela_mock = setup_tela_mock(saida)
-            menu_candidaturas(tela_mock, candidaturas)
+            MenuStatus(tela_mock).menu_candidaturas(candidaturas)
 
     verifica_saida_esperada(esperado_candidaturas)
     remove_banco_teste()

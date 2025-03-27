@@ -8,6 +8,8 @@ from .db_test import remove_banco_teste
 from .test_status import setup_tela_mock
 from .test_status import verifica_saida_esperada
 from trackJobs.edicao import edicao
+from trackJobs.edicao import MenuEdicao
+from trackJobs.menu import Menu
 
 
 def get_vaga_id(db_path, id):
@@ -55,13 +57,13 @@ def get_vaga_id(db_path, id):
         ),
     ],
 )
-@patch("trackJobs.edicao.menu_candidaturas", return_value=2)
-def test_edicao_nome(mock_menu, campo_alterado, novo_valor, msg_esperada, request):
+@patch.object(Menu, "menu_candidaturas", return_value=2)
+def test_edicao(mock_menu, campo_alterado, novo_valor, msg_esperada, request):
     criar_banco_teste_com_dados()
     id_da_vaga_escolhida = "3"
     msg_esperada = request.getfixturevalue(msg_esperada)
 
-    with patch("trackJobs.edicao.menu_edicao", return_value=f"{campo_alterado}"):
+    with patch.object(MenuEdicao, "menu_edicao", return_value=f"{campo_alterado}"):
         with patch("questionary.text") as mock_text:
             mock_text.return_value.ask.return_value = novo_valor
             with open("saida_teste.txt", "w") as saida:

@@ -1,9 +1,28 @@
 import sqlite3
 
 import questionary
+from questionary import Style
 
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
 FILTROS = {"limpa_filtro": 0, "nome": 1, "link": 2, "status": 3, "nenhum": -1}
+CUSTOM_STYLE = Style(
+    [
+        ("qmark", "fg:#00ffff bold"),  # Sinal de pergunta (ex: ?)
+        ("question", "bold"),  # Pergunta principal
+        ("answer", "fg:#00ffff bold"),  # Resposta selecionada
+        (
+            "pointer",
+            "fg:#00ffff bold",
+        ),  # Seta que aponta para a opção selecionada
+        (
+            "highlighted",
+            "fg:#00ffff bold",
+        ),  # Opção em destaque (mouse ou seleção)
+        ("selected", "fg:#00ffff"),  # Quando uma opção já está selecionada
+        ("separator", "fg:#6C6C6C"),  # Separador de opções, se usado
+        ("instruction", ""),  # Instruções adicionais (ex: Pressione enter)
+    ]
+)
 
 
 def realiza_update(db_path, candidatura, campo, novo_dado):

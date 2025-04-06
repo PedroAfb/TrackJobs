@@ -1,15 +1,17 @@
 import curses
 import sqlite3
 
+import questionary
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import IntPrompt
 
 from trackJobs.cadastro import cadastra_candidatura
 from trackJobs.edicao import edicao
 from trackJobs.exceptions import InicializacaoBancoException
 from trackJobs.remocao import remocao
 from trackJobs.status import edita_status
+from trackJobs.utils import CUSTOM_STYLE
+from trackJobs.visualizacao import visualizacao_candidatura
 
 CADASTRAR_CANDIDATURA = 1
 EDITAR_STATUS = 2
@@ -66,23 +68,28 @@ def menu():
             )
         )
 
-        msg_prompt = (
-            "[bold cyan]Escolha uma opção abaixo:[/bold cyan]\n\n"
-            "[green]1[/green] - Cadastrar Candidatura\n"
-            "[green]2[/green] - Editar Status da Candidatura\n"
-            "[green]3[/green] - Editar Candidatura\n"
-            "[green]4[/green] - Remover Candidatura\n"
-            "[green]5[/green] - Fechar Ferramenta\n"
-        )
-        opcao = IntPrompt.ask(msg_prompt, choices=["1", "2", "3", "4", "5"])
+        opcao = questionary.select(
+            "Escolha uma opção abaixo:\n",
+            choices=[
+                "Cadastrar Candidatura",
+                "Visualizar Candidaturas",
+                "Editar Status da Candidatura",
+                "Editar Candidatura",
+                "Remover Candidatura",
+                "Fechar Ferramenta",
+            ],
+            style=CUSTOM_STYLE,
+        ).ask()
 
-        if opcao == CADASTRAR_CANDIDATURA:
+        if opcao == "Cadastrar Candidatura":
             cadastra_candidatura()
-        elif opcao == EDITAR_STATUS:
+        elif opcao == "Visualizar Candidaturas":
+            curses.wrapper(visualizacao_candidatura)
+        elif opcao == "Editar Status da Candidatura":
             curses.wrapper(edita_status)
-        elif opcao == EDITAR_CANDIDATURA:
+        elif opcao == "Editar Candidatura":
             curses.wrapper(edicao)
-        elif opcao == REMOVER_CANDIDATURA:
+        elif opcao == "Remover Candidatura":
             curses.wrapper(remocao)
         else:
             break

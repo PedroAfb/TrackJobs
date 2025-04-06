@@ -2,9 +2,7 @@ import questionary
 from rich.console import Console
 
 from .exceptions import RetornarMenuException
-from .menu import FILTROS
 from .menu import Menu
-from .utils import filtra_candidaturas
 from .utils import realiza_update
 
 console = Console()
@@ -28,14 +26,8 @@ class MenuStatus(Menu):
 def edita_status(tela, db_path="track_jobs.db"):
     try:
         menu = MenuStatus(tela)
-        index_candidatura = "nenhum"
 
-        while index_candidatura in FILTROS.keys():
-            candidaturas = filtra_candidaturas(db_path, index_candidatura)
-            index_candidatura = menu.menu_candidaturas(candidaturas)
-
-        # Seleciona a candidatura e atualiza o status
-        cand_selecionada = candidaturas[index_candidatura]
+        cand_selecionada = menu.escolha_candidatura(db_path)
         novo_status = menu.menu_status(cand_selecionada)
         realiza_update(db_path, cand_selecionada, "status", novo_status)
 

@@ -2,9 +2,8 @@ import sqlite3
 
 import questionary
 
-from .menu import FILTROS
-
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
+FILTROS = {"limpa_filtro": 0, "nome": 1, "link": 2, "status": 3, "nenhum": -1}
 
 
 def realiza_update(db_path, candidatura, campo, novo_dado):

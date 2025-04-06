@@ -37,8 +37,8 @@ class MenuRemocao(Menu):
 def realiza_remocao(db_path, candidatura):
     conexao = sqlite3.connect(db_path)
     cursor = conexao.cursor()
-    comando = f"DELETE FROM vagas WHERE link = '{candidatura['link']}'"
-    cursor.execute(comando)
+    comando = "DELETE FROM vagas WHERE link = ?"
+    cursor.execute(comando, (candidatura['link'],))
     conexao.commit()
     conexao.close()
 

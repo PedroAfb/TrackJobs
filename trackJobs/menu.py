@@ -1,6 +1,7 @@
 import curses
 
 from .exceptions import RetornarMenuException
+from .utils import filtra_candidaturas
 
 FILTROS = {"limpa_filtro": 0, "nome": 1, "link": 2, "status": 3, "nenhum": -1}
 MOVER_BAIXO = curses.KEY_DOWN
@@ -147,6 +148,14 @@ class Menu:
             result = self.interpreta_teclado(opcoes_menu)
             if result is not None:
                 return result
+
+    def escolha_candidatura(self, db_path="track_jobs.db"):
+        index_candidatura_escolhida = "nenhum"
+        while index_candidatura_escolhida in FILTROS.keys():
+            candidaturas = filtra_candidaturas(db_path, index_candidatura_escolhida)
+            index_candidatura_escolhida = self.menu_candidaturas(candidaturas)
+
+        return candidaturas[index_candidatura_escolhida]
 
     def exibe_mensagem_sucesso(self, novo_status, campo_atualizado="Status"):
         """

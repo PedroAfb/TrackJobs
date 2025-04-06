@@ -13,6 +13,20 @@ class MenuRemocao(Menu):
     def __init__(self, tela):
         super().__init__(tela)
 
+    def escolha_candidatura(self, db_path="track_jobs.db"):
+        index_candidatura_escolhida = "nenhum"
+
+        certainty = False
+        while index_candidatura_escolhida in FILTROS.keys() and not certainty:
+            candidaturas = filtra_candidaturas(db_path, index_candidatura_escolhida)
+            index_candidatura_escolhida = self.menu_candidaturas(candidaturas)
+            certainty = questionary.confirm(
+                "Você tem certeza que deseja remover a candidatura "
+                f"{candidaturas[index_candidatura_escolhida]['nome']}?",
+            ).ask()
+
+        return candidaturas[index_candidatura_escolhida]
+
     def exibe_mensagem_sucesso(self, novo_status, campo_atualizado="Status"):
         self.tela.clear()
         self.tela.addstr(5, 5, "✅ Candidatura removida com sucesso!", curses.A_BOLD)
@@ -32,18 +46,7 @@ def realiza_remocao(db_path, candidatura):
 def remocao(tela, db_path="track_jobs.db"):
     try:
         menu_remocao = MenuRemocao(tela)
-        index_candidatura = "nenhum"
-
-        certainty = False
-        while index_candidatura in FILTROS.keys() and not certainty:
-            candidaturas = filtra_candidaturas(db_path, index_candidatura)
-            index_candidatura = menu_remocao.menu_candidaturas(candidaturas)
-            certainty = questionary.confirm(
-                "Você tem certeza que deseja remover a candidatura "
-                f"{candidaturas[index_candidatura]['nome']}?",
-            ).ask()
-
-        cand_selecionada = candidaturas[index_candidatura]
+        cand_selecionada = menu_remocao.escolha_candidatura(db_path)
         realiza_remocao(db_path, cand_selecionada)
 
         menu_remocao.tela.clear()

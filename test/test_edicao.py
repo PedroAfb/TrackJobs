@@ -5,8 +5,8 @@ import pytest
 
 from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
-from .test_status import setup_tela_mock
-from .test_status import verifica_saida_esperada
+from .test_menu import setup_tela_mock
+from .test_menu import verifica_saida_esperada
 from trackJobs.edicao import edicao
 from trackJobs.edicao import MenuEdicao
 from trackJobs.menu import Menu

@@ -188,3 +188,8 @@ mensagem_sucesso_edicao_descricao = [
     "✅ Campo Descriçao atualizado com sucesso!",
     "Pressione qualquer tecla para voltar ao menu principal",
 ]
+
+mensagem_sucesso_remocao = [
+    "✅ Candidatura removida com sucesso!",
+    "Pressione qualquer tecla para voltar ao menu principal",
+]

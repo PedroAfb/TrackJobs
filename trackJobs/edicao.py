@@ -4,12 +4,10 @@ import questionary
 
 from .exceptions import RetornarMenuException
 from .menu import CANDIDATURA_SELECIONADA
-from .menu import FILTROS
 from .menu import Menu
 from .menu import MOVER_BAIXO
 from .menu import MOVER_CIMA
 from .menu import VOLTAR_MENU
-from .utils import filtra_candidaturas
 from .utils import get_vaga
 from .utils import realiza_update
 
@@ -108,16 +106,9 @@ class MenuEdicao(Menu):
 
 def edicao(tela, db_path="track_jobs.db"):
     try:
-        index_candidatura = "nenhum"
         menu_edicao = MenuEdicao(tela)
-        menu = Menu(tela)
 
-        while index_candidatura in FILTROS.keys():
-            candidaturas = filtra_candidaturas(db_path, index_candidatura)
-            index_candidatura = menu.menu_candidaturas(candidaturas)
-
-        # Seleciona a candidatura e atualiza o status
-        cand_selecionada = candidaturas[index_candidatura]
+        cand_selecionada = menu_edicao.escolha_candidatura(db_path)
         cand_selecionada = get_vaga(db_path, cand_selecionada["link"])
         campo_selecionado = menu_edicao.menu_edicao(cand_selecionada)
         tela.clear()
@@ -129,7 +120,6 @@ def edicao(tela, db_path="track_jobs.db"):
             .ask()
             .strip()
         )
-        # Faz update no bando de dados
 
         realiza_update(db_path, cand_selecionada, campo_selecionado, novo_dado)
 

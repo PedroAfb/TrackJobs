@@ -17,13 +17,14 @@ class MenuRemocao(Menu):
         index_candidatura_escolhida = "nenhum"
 
         certainty = False
-        while index_candidatura_escolhida in FILTROS.keys() and not certainty:
+        while index_candidatura_escolhida in FILTROS.keys() or certainty is False:
             candidaturas = filtra_candidaturas(db_path, index_candidatura_escolhida)
             index_candidatura_escolhida = self.menu_candidaturas(candidaturas)
-            certainty = questionary.confirm(
-                "Você tem certeza que deseja remover a candidatura "
-                f"{candidaturas[index_candidatura_escolhida]['nome']}?",
-            ).ask()
+            if index_candidatura_escolhida not in FILTROS.keys():
+                certainty = questionary.confirm(
+                    "\n\nVocê tem certeza que deseja remover a candidatura "
+                    f"{candidaturas[index_candidatura_escolhida]['nome']}?",
+                ).ask()
 
         return candidaturas[index_candidatura_escolhida]
 
@@ -38,7 +39,7 @@ def realiza_remocao(db_path, candidatura):
     conexao = sqlite3.connect(db_path)
     cursor = conexao.cursor()
     comando = "DELETE FROM vagas WHERE link = ?"
-    cursor.execute(comando, (candidatura['link'],))
+    cursor.execute(comando, (candidatura["link"],))
     conexao.commit()
     conexao.close()
 

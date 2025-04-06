@@ -1,3 +1,4 @@
 track_jobs.db
 .vscode/
 teste.py
+**/__pycache__/

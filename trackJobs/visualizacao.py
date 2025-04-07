@@ -1,6 +1,7 @@
 import curses
 import textwrap
 
+from .exceptions import RetornarMenuException
 from .menu import Menu
 from .utils import get_vaga
 
@@ -16,6 +17,7 @@ class MenuVisualizacao(Menu):
         self.conteudo = []
 
     def set_conteudo(self, candidatura):
+        self.conteudo.clear()
         col_max = self.max_colunas - 4  # margem
 
         for chave, valor in candidatura.items():
@@ -68,11 +70,14 @@ class MenuVisualizacao(Menu):
 
 def visualizacao_candidatura(tela, db_path="track_jobs.db"):
     menu = MenuVisualizacao(tela)
-
-    cand_selecionada = menu.escolha_candidatura(db_path)
-    cand_selecionada = get_vaga(db_path, cand_selecionada["link"])
     try:
-        menu.menu_da_candidatura(cand_selecionada)
+        while True:
+            cand_selecionada = menu.escolha_candidatura(db_path)
+            cand_selecionada = get_vaga(db_path, cand_selecionada["link"])
+            menu.menu_da_candidatura(cand_selecionada)
+
+    except RetornarMenuException:
+        pass
 
     except Exception as e:
         menu.exibe_mensagem_erro(e)

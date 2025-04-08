@@ -29,11 +29,8 @@ def realiza_update(db_path, candidatura, campo, novo_dado):
     conexao = sqlite3.connect(db_path)
     cursor = conexao.cursor()
 
-    comando = (
-        f"UPDATE vagas SET '{campo}' = "
-        f"'{novo_dado}' WHERE link = '{candidatura['link']}'"
-    )
-    cursor.execute(comando)
+    comando = f"UPDATE vagas SET '{campo}' = ? WHERE link = ?"
+    cursor.execute(comando, (novo_dado, candidatura["link"]))
     conexao.commit()
     conexao.close()
 

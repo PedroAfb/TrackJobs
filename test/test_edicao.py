@@ -18,7 +18,6 @@ def get_vaga_id(db_path, id):
     cursor.execute(f"SELECT * FROM vagas WHERE id = {id}")
     vaga = cursor.fetchone()
     conexao.close()
-    conexao.close()
     if vaga:
         # Pega o nome das colunas
         colunas = [descricao[0] for descricao in cursor.description]

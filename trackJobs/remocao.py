@@ -17,14 +17,18 @@ class MenuRemocao(Menu):
         index_candidatura_escolhida = "nenhum"
 
         certainty = False
-        while index_candidatura_escolhida in FILTROS.keys() or certainty is False:
+        while True:
             candidaturas = filtra_candidaturas(db_path, index_candidatura_escolhida)
             index_candidatura_escolhida = self.menu_candidaturas(candidaturas)
+
             if index_candidatura_escolhida not in FILTROS.keys():
                 certainty = questionary.confirm(
                     "\n\nVocê tem certeza que deseja remover a candidatura "
                     f"{candidaturas[index_candidatura_escolhida]['nome']}?",
                 ).ask()
+
+                if certainty:
+                    break
 
         return candidaturas[index_candidatura_escolhida]
 

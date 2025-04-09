@@ -39,8 +39,8 @@ def get_vaga(db_path, link):
     conexao = sqlite3.connect(db_path)
     cursor = conexao.cursor()
 
-    comando = f"SELECT * FROM vagas WHERE link = '{link}'"
-    cursor.execute(comando)
+    comando = "SELECT * FROM vagas WHERE link = ?"
+    cursor.execute(comando, (link,))
     vaga = cursor.fetchone()
 
     conexao.close()

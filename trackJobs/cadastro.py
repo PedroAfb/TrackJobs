@@ -146,7 +146,7 @@ def cadastra_vaga(conexao_db: Connection, cursor_db: Cursor, dados_candidatura: 
         ).fetchall()[0][0]
         msg_insert_vagas = (
             "INSERT INTO vagas "
-            "(nome, link, status, descricao, idEmpresa) VALUES\n"
+            "(nome, link, status, descriçao, idEmpresa) VALUES\n"
             f"('{dados_candidatura['nome']}', '{dados_candidatura['link']}', "
             f"'{dados_candidatura['status']}', "
             f"'{dados_candidatura['descricao']}', '{id_empresa}')"
@@ -154,7 +154,7 @@ def cadastra_vaga(conexao_db: Connection, cursor_db: Cursor, dados_candidatura: 
     else:
         msg_insert_vagas = (
             "INSERT INTO vagas "
-            "(nome, link, status, descricao) VALUES\n"
+            "(nome, link, status, descriçao) VALUES\n"
             f"('{dados_candidatura['nome']}', '{dados_candidatura['link']}', "
             f"'{dados_candidatura['status']}', '{dados_candidatura['descricao']}')"
         )

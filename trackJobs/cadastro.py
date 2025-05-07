@@ -15,8 +15,12 @@ VOLTAR_MENU = 6
 
 def verificar_saida(valor):
     """Verifica se o usuário deseja retornar ao menu."""
-    if valor.strip() == "6":
+    if valor.strip() == "6":  # TODO: Remover Hardcode
         raise RetornarMenuException
+
+
+# TODO: Refatorar métodos de coleta de links (Duplicação de código)
+# TODO: Proteger comandos contra SQL Injection
 
 
 def obter_site_empresa(cursor_db: Cursor):
@@ -45,7 +49,7 @@ def obter_site_empresa(cursor_db: Cursor):
 
 def obter_link_vaga(db_path="track_jobs.db"):
     link = None
-    while link != "6":
+    while link != VOLTAR_MENU:  # TODO: Remover Hardcode
         link = Prompt.ask("Qual o link da vaga?[OBRIGATÓRIO]")
 
         if validators.url(link):
@@ -105,6 +109,8 @@ def coleta_dados_vaga():
     )
     verificar_saida(status)
     dados_candidatura["status"] = status
+
+    # TODO: Adicionar data de candidatura
 
     descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")
     verificar_saida(descricao)

@@ -27,8 +27,11 @@ def criar_banco_teste():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             link TEXT UNIQUE NOT NULL,
-            status TEXT DEFAULT 'candidatar-se',
-            descricao TEXT,
+            status TEXT DEFAULT 'candidatar-se'
+            CHECK(status IN
+            ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
+            data de aplicaçao DATE DEFAULT CURRENT_DATE,
+            descriçao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY (idEmpresa) REFERENCES empresas(id)
         )

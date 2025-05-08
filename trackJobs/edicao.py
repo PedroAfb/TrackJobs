@@ -23,7 +23,9 @@ class MenuEdicao(Menu):
         _, largura = self.tela.getmaxyx()
         margem = 2  # Margem de segurança para evitar estouro
 
-        if campo_pra_print == self.index_campo_atual:
+        if (
+            campo_pra_print == self.index_campo_atual
+        ):  # Se o cursor estiver no campo, mostra o valor
             msg = f"> {campo.capitalize()}: {dados}\n"
         else:
             msg = f"> {campo.capitalize()}\n"
@@ -45,7 +47,6 @@ class MenuEdicao(Menu):
     def interpreta_teclado(self, opcoes_menu):
         entrada_user = self.tela.getch()  # Aguarda entrada do teclado
 
-        # Movimentação da seleção para cima e para baixo
         if (
             entrada_user == MOVER_BAIXO
             and self.index_campo_atual < len(CAMPOS_VAGA) - 1
@@ -62,6 +63,23 @@ class MenuEdicao(Menu):
 
         return None
 
+    def exibir_menu_edicao(
+        self, candidatura: dict, itens_exibidos: int, posicao_scroll: int
+    ):
+        msg = (
+            "Escolha o campo que queira editar da vaga escolhida abaixo:\n"
+            "(Setas para navegar, Enter para selecionar "
+            "e ESC para retornar ao menu principal)\n\n"
+        )
+        self.tela.addstr(0, 0, msg)
+
+        self.index_candidatura_atual = self.index_campo_atual
+        posicao_scroll = self.ajustar_scroll(posicao_scroll, itens_exibidos)
+
+        for i, campo in enumerate(CAMPOS_VAGA):
+            campo_pra_print = i + posicao_scroll
+            self.exibir_campo(campo, candidatura[campo], i, campo_pra_print)
+
     def menu_edicao(self, candidatura: dict):
         curses.curs_set(0)  # Oculta o cursor no terminal
         self.tela.keypad(True)
@@ -76,20 +94,7 @@ class MenuEdicao(Menu):
 
             self.tela.clear()
 
-            msg = (
-                "Escolha o campo que queira editar da vaga escolhida abaixo:\n"
-                "(Setas para navegar, Enter para selecionar "
-                "e ESC para retornar ao menu principal)\n\n"
-            )
-            self.tela.addstr(0, 0, msg)
-
-            self.index_candidatura_atual = self.index_campo_atual
-            posicao_scroll = self.ajustar_scroll(posicao_scroll, itens_exibidos)
-            # cont = 0
-            for i, campo in enumerate(CAMPOS_VAGA):
-                campo_pra_print = i + posicao_scroll
-                self.exibir_campo(campo, candidatura[campo], i, campo_pra_print)
-                # cont += 1
+            self.exibir_menu_edicao(candidatura, itens_exibidos, posicao_scroll)
 
             result = self.interpreta_teclado(None)
             if result:

@@ -4,10 +4,9 @@ from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
 from .test_menu import setup_tela_mock
 from .test_menu import verifica_saida_esperada
-from trackJobs.menu import FILTROS
 from trackJobs.status import edita_status
 from trackJobs.status import MenuStatus
-from trackJobs.utils import get_candidaturas
+from trackJobs.utils import get_candidaturas_com_filtro
 
 
 @patch.object(MenuStatus, "menu_candidaturas", return_value=4)
@@ -24,8 +23,8 @@ def test_edicao_status(mock_menu, mock_menu_status, esperado_mensagem_sucesso):
 
     verifica_saida_esperada(esperado_mensagem_sucesso)
 
-    candidatura_alterada = get_candidaturas(
-        "track_jobs_test.db", filtro="DevOps Engineer", tipo_filtro=FILTROS["nome"]
+    candidatura_alterada = get_candidaturas_com_filtro(
+        "track_jobs_test.db", filtro="DevOps Engineer", tipo_filtro="nome"
     )
     assert candidatura_alterada[0]["status"] == "entrevista"
 

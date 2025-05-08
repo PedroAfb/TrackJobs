@@ -4,7 +4,6 @@ import questionary
 from questionary import Style
 
 OPCOES_STATUS = ["candidatar-se", "em análise", "entrevista", "rejeitado", "aceito"]
-FILTROS = {"limpa_filtro": 0, "nome": 1, "link": 2, "status": 3, "nenhum": -1}
 CUSTOM_STYLE = Style(
     [
         ("qmark", "fg:#00ffff bold"),  # Sinal de pergunta (ex: ?)
@@ -29,7 +28,9 @@ def realiza_update(db_path, candidatura, campo, novo_dado):
     conexao = sqlite3.connect(db_path)
     cursor = conexao.cursor()
 
-    comando = f"UPDATE vagas SET '{campo}' = ? WHERE link = ?"
+    comando = (
+        f"UPDATE vagas SET '{campo}' = ? WHERE link = ?"  # Configura SQL Injection?
+    )
     cursor.execute(comando, (novo_dado, candidatura["link"]))
     conexao.commit()
     conexao.close()
@@ -56,21 +57,15 @@ def get_vaga(db_path, link):
         return None  # Caso não encontre a vaga
 
 
-def get_candidaturas(db_path, filtro="", tipo_filtro=None):
+def get_candidaturas_com_filtro(db_path, filtro="", tipo_filtro=None):
     conexao = sqlite3.connect(db_path)
     conexao.row_factory = sqlite3.Row  # Retorna os resultados como dicionário
     cursor = conexao.cursor()
     query = "SELECT nome, link, status FROM vagas"
     params = []
 
-    if tipo_filtro in FILTROS.values():
-        if tipo_filtro == FILTROS["link"]:
-            coluna = "link"
-        elif tipo_filtro == FILTROS["nome"]:
-            coluna = "nome"
-        elif tipo_filtro == FILTROS["status"]:
-            coluna = "status"
-        query += f" WHERE {coluna} LIKE ?"
+    if tipo_filtro in ["link", "nome", "status"]:
+        query += f" WHERE {tipo_filtro} LIKE ?"
         params.append(f"%{filtro}%")
 
     cursor.execute(query, params)
@@ -87,16 +82,16 @@ def filtra_candidaturas(db_path, index_candidatura):
         filtro_link = questionary.text(
             "\nDigite o link da candidatura para filtrar:\n"
         ).ask()
-        return get_candidaturas(
-            db_path, filtro=filtro_link, tipo_filtro=FILTROS["link"]
+        return get_candidaturas_com_filtro(
+            db_path, filtro=filtro_link, tipo_filtro="link"
         )
 
     elif index_candidatura == "nome":
         filtro_nome = questionary.text(
             "\nDigite o nome da candidatura para filtrar:\n"
         ).ask()
-        return get_candidaturas(
-            db_path, filtro=filtro_nome, tipo_filtro=FILTROS["nome"]
+        return get_candidaturas_com_filtro(
+            db_path, filtro=filtro_nome, tipo_filtro="nome"
         )
 
     elif index_candidatura == "status":
@@ -104,8 +99,8 @@ def filtra_candidaturas(db_path, index_candidatura):
             "\nSelecione o status da candidatura para filtrar:\n",
             choices=OPCOES_STATUS,
         ).ask()
-        return get_candidaturas(
-            db_path, filtro=filtro_status, tipo_filtro=FILTROS["status"]
+        return get_candidaturas_com_filtro(
+            db_path, filtro=filtro_status, tipo_filtro="status"
         )
 
-    return get_candidaturas(db_path)
+    return get_candidaturas_com_filtro(db_path)

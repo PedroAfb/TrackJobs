@@ -10,7 +10,7 @@ from rich.prompt import Prompt
 from .exceptions import RetornarMenuException
 
 console = Console()
-VOLTAR_MENU = 6
+VOLTAR_MENU = "6"
 
 
 def verificar_saida(valor):

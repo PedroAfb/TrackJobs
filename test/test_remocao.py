@@ -6,18 +6,17 @@ from .db_test import remove_banco_teste
 from .test_menu import setup_tela_mock
 from .test_menu import verifica_saida_esperada
 from trackJobs.exceptions import RetornarMenuException
-from trackJobs.menu import FILTROS
 from trackJobs.remocao import MenuRemocao
 from trackJobs.remocao import remocao
-from trackJobs.utils import get_candidaturas
+from trackJobs.utils import get_candidaturas_com_filtro
 
 
 @patch.object(MenuRemocao, "menu_candidaturas", return_value=2)
 def test_remocao_success(MockMenuRemocao, esperado_msg_remocao_sucesso):
     criar_banco_teste_com_dados()
     link_vaga_escolhida = "'https://jobs.example.com/4'"
-    candidatura_escolhida = get_candidaturas(
-        "track_jobs_test.db", link_vaga_escolhida, FILTROS["link"]
+    candidatura_escolhida = get_candidaturas_com_filtro(
+        "track_jobs_test.db", link_vaga_escolhida, "link"
     )
 
     assert candidatura_escolhida is not None
@@ -29,8 +28,8 @@ def test_remocao_success(MockMenuRemocao, esperado_msg_remocao_sucesso):
                 tela_mock = setup_tela_mock(saida)
                 remocao(tela_mock, "track_jobs_test.db")
 
-    candidatura_escolhida = get_candidaturas(
-        "track_jobs_test.db", link_vaga_escolhida, FILTROS["link"]
+    candidatura_escolhida = get_candidaturas_com_filtro(
+        "track_jobs_test.db", link_vaga_escolhida, "link"
     )
 
     assert not candidatura_escolhida

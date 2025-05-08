@@ -7,9 +7,8 @@ import pytest
 from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
 from trackJobs.menu import CANDIDATURA_SELECIONADA
-from trackJobs.menu import FILTROS
 from trackJobs.menu import Menu
-from trackJobs.utils import get_candidaturas
+from trackJobs.utils import get_candidaturas_com_filtro
 
 
 def setup_tela_mock(saida):
@@ -62,22 +61,22 @@ def test_candidaturas(candidaturas, esperado, request):
 @pytest.mark.parametrize(
     "filtro, tipo_filtro, esperado",
     [
-        ("Desenvolvedor", FILTROS["nome"], "esperado_candidaturas_filtradas_por_nome"),
+        ("Desenvolvedor", "nome", "esperado_candidaturas_filtradas_por_nome"),
         (
             "jobs.example.com/1",
-            FILTROS["link"],
+            "link",
             "esperado_candidaturas_filtradas_por_link",
         ),
         (
             "candidatar-se",
-            FILTROS["status"],
+            "status",
             "esperado_candidaturas_filtradas_por_status",
         ),
     ],
 )
 def test_status_mostra_candidaturas_com_filtros(filtro, tipo_filtro, esperado, request):
     criar_banco_teste_com_dados()
-    candidaturas = get_candidaturas(
+    candidaturas = get_candidaturas_com_filtro(
         "track_jobs_test.db", filtro=filtro, tipo_filtro=tipo_filtro
     )
     esperado_candidaturas = request.getfixturevalue(esperado)

@@ -9,11 +9,14 @@ VOLTAR_MENU = 27
 MOVER_CIMA = curses.KEY_UP
 MOVER_BAIXO = curses.KEY_DOWN
 
-# TODO: Mudar o texto do menu de visualização
-
 
 class MenuVisualizacao(Menu):
-    def __init__(self, tela, msg_menu: str):
+    def __init__(self, tela):
+        msg_menu = (
+            "Selecione uma candidatura para visualizar os detalhes "
+            "(Setas para navegar, Enter para selecionar "
+            "e ESC para retornar ao menu principal)"
+        )
         super().__init__(tela, msg_menu)
         self.max_linhas, self.max_colunas = self.tela.getmaxyx()
         self.conteudo = []
@@ -71,12 +74,7 @@ class MenuVisualizacao(Menu):
 
 
 def visualizacao_candidatura(tela, db_path="track_jobs.db"):
-    msg_menu = (
-        "Selecione uma candidatura para visualizar os detalhes "
-        "(Setas para navegar, Enter para selecionar "
-        "e ESC para retornar ao menu principal)"
-    )
-    menu = MenuVisualizacao(tela, msg_menu)
+    menu = MenuVisualizacao(tela)
     try:
         while True:
             cand_selecionada = menu.escolha_candidatura(db_path)

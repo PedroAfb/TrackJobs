@@ -6,6 +6,7 @@ import pytest
 from .db_test import criar_banco_teste
 from .db_test import remove_banco_teste
 from trackJobs.cadastro import cadastra_candidatura
+from trackJobs.cadastro import obter_data_candidatura
 from trackJobs.cadastro import obter_link_vaga
 from trackJobs.cadastro import obter_site_empresa
 from trackJobs.exceptions import RetornarMenuException
@@ -163,4 +164,39 @@ def test_site_duplicado_empresa(dict_cadastro_com_empresa, capsys):
     remove_banco_teste()
 
 
-# TODO: Adicionar testes para cadastro com data de aplicacao
+@pytest.mark.parametrize(
+    "mock_input, expected_output",
+    [
+        (["2025-05-08"], "2025-05-08"),  # Data válida
+        ([""], None),  # Entrada vazia (opcional)
+    ],
+)
+def test_obter_data_candidatura_valida(mock_input, expected_output):
+    """Testa o comportamento do método com entradas válidas."""
+    with patch("trackJobs.cadastro.Prompt.ask", side_effect=mock_input):
+        assert obter_data_candidatura() == expected_output
+
+
+def test_obter_data_candidatura_invalida(capsys):
+    """Testa o comportamento do método com uma entrada inválida."""
+    mock_input = [
+        "08-05-2025",
+        "2025-05-08",
+    ]  # Primeira entrada inválida, segunda válida
+    expected_output = (
+        "Data inválida. Digite uma data válida (YYYY-MM-DD) ou deixe em branco."
+    )
+
+    with patch("trackJobs.cadastro.Prompt.ask", side_effect=mock_input):
+        result = obter_data_candidatura()
+        captured_stdout = capsys.readouterr()
+        assert expected_output in captured_stdout.out
+        assert result == "2025-05-08"  # Retorna a segunda entrada válida
+
+
+def test_obter_data_candidatura_voltar_menu():
+    """Testa o comportamento do método quando o usuário deseja retornar ao menu."""
+    mock_input = ["6"]  # Entrada para retornar ao menu
+    with patch("trackJobs.cadastro.Prompt.ask", side_effect=mock_input):
+        with pytest.raises(RetornarMenuException):
+            obter_data_candidatura()

@@ -95,8 +95,8 @@ def obter_data_candidatura():
             return data_candidatura
         except ValueError:
             console.print(
-                """[bold red]Data inválida. Digite uma
-                data válida ou deixe em branco.[/bold red]"""
+                "[bold red]Data inválida. Digite uma [/bold red]"
+                "[bold red]data válida (YYYY-MM-DD) ou deixe em branco.[/bold red]"
             )
 
 
@@ -125,7 +125,6 @@ def coleta_dados_vaga():
     verificar_saida(status)
     dados_candidatura["status"] = status
 
-    # TODO: Adicionar data de candidatura
     dados_candidatura["data_aplicacao"] = obter_data_candidatura()
 
     descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")

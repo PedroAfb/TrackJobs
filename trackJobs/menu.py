@@ -36,14 +36,16 @@ class Menu:
                 if cand_pra_print == self.index_candidatura_atual
                 else curses.A_BOLD
             )
-            self.tela.addstr(i + 2, 2, f"> {c}", estilo)
+            self.tela.addstr(i + 2, 2, f"> {c}", estilo)  # Printa os filtros
         else:
             estilo = (
                 curses.A_REVERSE
                 if cand_pra_print == self.index_candidatura_atual
                 else curses.A_NORMAL
             )
-            self.tela.addstr(i + 2, 2, f"  {c['nome']} - {c['status']}", estilo)
+            self.tela.addstr(
+                i + 2, 2, f"  {c['nome']} - {c['status']}", estilo
+            )  # Printa as candidaturas
 
     def exibir_menu(self, opcoes_menu, posicao_scroll, itens_exibidos):
         """
@@ -104,7 +106,7 @@ class Menu:
         elif entrada_user == CANDIDATURA_SELECIONADA:
             self.tela.clear()
             if self.index_candidatura_atual < MENU_VAZIO:
-                return next(
+                return next(  # Retorna o filtro selecionado
                     (
                         chave
                         for chave, valor in FILTROS.items()

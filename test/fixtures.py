@@ -3,6 +3,7 @@ dados_cadastro_sem_empresa = {
     "link": "https://example.com",
     "status": "candidatar-se",
     "descricao": "descrição teste",
+    "data_aplicacao": None,
     "nome_empresa": None,
 }
 
@@ -11,14 +12,16 @@ dados_cadastro_sem_empresa_link_duplicado = {
     "link": "https://example.com",
     "status": "em análise",
     "descricao": "descrição teste",
+    "data_aplicacao": "2023-10-01",
     "nome_empresa": None,
 }
 
 dados_cadastro_sem_empresa_link_invalido = {
     "nome": "vaga teste",
     "link": "//example.com",
-    "status": "candidatar-se",
+    "status": None,
     "descricao": "descrição teste",
+    "data_aplicacao": "2023-10-01",
     "nome_empresa": None,
 }
 
@@ -26,7 +29,8 @@ dados_cadastro_com_empresa = {
     "nome": "vaga teste",
     "link": "https://example.com",
     "status": "candidatar-se",
-    "descricao": "descrição teste",
+    "descricao": None,
+    "data_aplicacao": "2023-10-01",
     "nome_empresa": "Amazon",
 }
 
@@ -35,6 +39,7 @@ dados_cadastro_com_empresa2 = {
     "link": "https://example23.com",
     "status": "candidatar-se",
     "descricao": "descrição teste",
+    "data_aplicacao": "2023-10-01",
     "nome_empresa": "Amazon",
 }
 

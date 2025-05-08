@@ -161,3 +161,6 @@ def test_site_duplicado_empresa(dict_cadastro_com_empresa, capsys):
         assert expected_output in captured_stdout.out
 
     remove_banco_teste()
+
+
+# TODO: Adicionar testes para cadastro com data de aplicacao

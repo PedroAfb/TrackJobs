@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date
 from sqlite3 import Connection
 from sqlite3 import Cursor
 
@@ -15,12 +16,8 @@ VOLTAR_MENU = "6"
 
 def verificar_saida(valor):
     """Verifica se o usuário deseja retornar ao menu."""
-    if valor.strip() == "6":  # TODO: Remover Hardcode
+    if valor.strip() == VOLTAR_MENU:
         raise RetornarMenuException
-
-
-# TODO: Refatorar métodos de coleta de links (Duplicação de código)
-# TODO: Proteger comandos contra SQL Injection
 
 
 def obter_site_empresa(cursor_db: Cursor):
@@ -49,7 +46,7 @@ def obter_site_empresa(cursor_db: Cursor):
 
 def obter_link_vaga(db_path="track_jobs.db"):
     link = None
-    while link != VOLTAR_MENU:  # TODO: Remover Hardcode
+    while link != VOLTAR_MENU:
         link = Prompt.ask("Qual o link da vaga?[OBRIGATÓRIO]")
 
         if validators.url(link):
@@ -85,6 +82,24 @@ def verifica_empresa_sql(cursor_db: Cursor, nome_empresa: str):
     return cursor_db.fetchone()
 
 
+def obter_data_candidatura():
+    while True:
+        data_candidatura = Prompt.ask(
+            "Qual a data da candidatura (YYYY-MM-DD)?[OPCIONAL]",
+        )
+        if not data_candidatura:
+            return None
+        verificar_saida(data_candidatura)
+        try:
+            date.fromisoformat(data_candidatura)
+            return data_candidatura
+        except ValueError:
+            console.print(
+                """[bold red]Data inválida. Digite uma
+                data válida ou deixe em branco.[/bold red]"""
+            )
+
+
 def coleta_dados_vaga():
     dados_candidatura = dict()
 
@@ -111,6 +126,7 @@ def coleta_dados_vaga():
     dados_candidatura["status"] = status
 
     # TODO: Adicionar data de candidatura
+    dados_candidatura["data_aplicacao"] = obter_data_candidatura()
 
     descricao = Prompt.ask("Coloque descrição sobre a vaga[OPCIONAL]")
     verificar_saida(descricao)
@@ -132,11 +148,18 @@ def coleta_dados_empresa(cursor_db: Cursor):
 def cadastra_empresa(conexao_db: Connection, cursor_db: Cursor, nome_empresa: str):
     site_empresa, setor_empresa = coleta_dados_empresa(cursor_db)
 
-    msg_insert_empresas = f"""
+    msg_insert_empresas = """
         INSERT INTO empresas (nome, site, setor) VALUES
-        ('{nome_empresa}', '{site_empresa}', '{setor_empresa}')
+        (?, ?, ?)
         """
-    cursor_db.execute(msg_insert_empresas)
+    cursor_db.execute(
+        msg_insert_empresas,
+        (
+            nome_empresa,
+            site_empresa,
+            setor_empresa,
+        ),
+    )
     conexao_db.commit()
 
     console.print(
@@ -150,22 +173,31 @@ def cadastra_vaga(conexao_db: Connection, cursor_db: Cursor, dados_candidatura: 
             "SELECT id FROM empresas WHERE nome = ?",
             (dados_candidatura["nome_empresa"],),
         ).fetchall()[0][0]
-        msg_insert_vagas = (
-            "INSERT INTO vagas "
-            "(nome, link, status, descriçao, idEmpresa) VALUES\n"
-            f"('{dados_candidatura['nome']}', '{dados_candidatura['link']}', "
-            f"'{dados_candidatura['status']}', "
-            f"'{dados_candidatura['descricao']}', '{id_empresa}')"
-        )
-    else:
-        msg_insert_vagas = (
-            "INSERT INTO vagas "
-            "(nome, link, status, descriçao) VALUES\n"
-            f"('{dados_candidatura['nome']}', '{dados_candidatura['link']}', "
-            f"'{dados_candidatura['status']}', '{dados_candidatura['descricao']}')"
+        msg_insert_vagas = """INSERT INTO vagas
+            (nome, link, status, descriçao, data_aplicaçao, idEmpresa) VALUES
+            (?, ?, ?, ?, ?, ?)"""
+        params = (
+            dados_candidatura["nome"],
+            dados_candidatura["link"],
+            dados_candidatura["status"],
+            dados_candidatura["descricao"],
+            dados_candidatura["data_aplicacao"],
+            id_empresa,
         )
 
-    cursor_db.execute(msg_insert_vagas)
+    else:
+        msg_insert_vagas = """INSERT INTO vagas
+            (nome, link, status, descriçao, data_aplicaçao) VALUES
+            (?, ?, ?, ?, ?)"""
+        params = (
+            dados_candidatura["nome"],
+            dados_candidatura["link"],
+            dados_candidatura["status"],
+            dados_candidatura["descricao"],
+            dados_candidatura["data_aplicacao"],
+        )
+
+    cursor_db.execute(msg_insert_vagas, params)
     conexao_db.commit()
 
 

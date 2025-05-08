@@ -9,6 +9,8 @@ VOLTAR_MENU = 27
 MOVER_CIMA = curses.KEY_UP
 MOVER_BAIXO = curses.KEY_DOWN
 
+# TODO: Mudar o texto do menu de visualização
+
 
 class MenuVisualizacao(Menu):
     def __init__(self, tela):

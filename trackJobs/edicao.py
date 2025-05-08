@@ -125,7 +125,7 @@ def edicao(tela, db_path="track_jobs.db"):
             .ask()
             .strip()
         )
-
+        # TODO: Adicionar validação de dados
         realiza_update(db_path, cand_selecionada, campo_selecionado, novo_dado)
 
         menu_edicao.exibe_mensagem_sucesso(tela, campo_selecionado.capitalize())

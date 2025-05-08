@@ -20,6 +20,8 @@ REMOVER_CANDIDATURA = 4
 
 console = Console()
 
+# TODO: Criar uma classe para o banco de dados
+
 
 def inicializa_banco():
     try:
@@ -43,7 +45,7 @@ def inicializa_banco():
             status TEXT DEFAULT 'candidatar-se'
             CHECK(status IN
             ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
-            data de aplicaçao DATE DEFAULT CURRENT_DATE,
+            data_aplicaçao DATE,
             descriçao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY(idEmpresa) REFERENCES empresas(id)

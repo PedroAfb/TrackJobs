@@ -13,8 +13,8 @@ MOVER_BAIXO = curses.KEY_DOWN
 
 
 class MenuVisualizacao(Menu):
-    def __init__(self, tela):
-        super().__init__(tela)
+    def __init__(self, tela, msg_menu: str):
+        super().__init__(tela, msg_menu)
         self.max_linhas, self.max_colunas = self.tela.getmaxyx()
         self.conteudo = []
 
@@ -71,7 +71,12 @@ class MenuVisualizacao(Menu):
 
 
 def visualizacao_candidatura(tela, db_path="track_jobs.db"):
-    menu = MenuVisualizacao(tela)
+    msg_menu = (
+        "Selecione uma candidatura para visualizar os detalhes "
+        "(Setas para navegar, Enter para selecionar "
+        "e ESC para retornar ao menu principal)"
+    )
+    menu = MenuVisualizacao(tela, msg_menu)
     try:
         while True:
             cand_selecionada = menu.escolha_candidatura(db_path)

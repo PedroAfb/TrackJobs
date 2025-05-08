@@ -10,8 +10,8 @@ from .utils import filtra_candidaturas
 
 
 class MenuRemocao(Menu):
-    def __init__(self, tela):
-        super().__init__(tela)
+    def __init__(self, tela, msg_menu: str):
+        super().__init__(tela, msg_menu)
 
     def escolha_candidatura(self, db_path="track_jobs.db"):
         index_candidatura_escolhida = "nenhum"
@@ -49,8 +49,13 @@ def realiza_remocao(db_path, candidatura):
 
 
 def remocao(tela, db_path="track_jobs.db"):
+    msg_menu = (
+        "Selecione uma candidatura para remover "
+        "(Setas para navegar, Enter para selecionar "
+        "e ESC para retornar ao menu principal)"
+    )
+    menu_remocao = MenuRemocao(tela, msg_menu)
     try:
-        menu_remocao = MenuRemocao(tela)
         cand_selecionada = menu_remocao.escolha_candidatura(db_path)
         realiza_remocao(db_path, cand_selecionada)
 

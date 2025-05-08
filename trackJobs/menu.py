@@ -12,9 +12,17 @@ MENU_VAZIO = 4
 
 
 class Menu:
-    def __init__(self, tela):
+    def __init__(self, tela, msg_menu: str = ""):
         self.tela = tela
         self.index_candidatura_atual = 0
+        if msg_menu:
+            self.msg_menu = msg_menu
+        else:
+            self.msg_menu = (
+                "Selecione uma candidatura para editar "
+                "(Setas para navegar, Enter para selecionar "
+                "e ESC para retornar ao menu principal)"
+            )
 
     def ajustar_scroll(self, posicao_scroll, itens_exibidos):
         """
@@ -53,13 +61,7 @@ class Menu:
         """
         self.tela.clear()
         max_linhas, _ = self.tela.getmaxyx()
-
-        msg = (
-            "Selecione uma candidatura para editar "
-            "(Setas para navegar, Enter para selecionar "
-            "e ESC para retornar ao menu principal)"
-        )
-        self.tela.addstr(0, 0, msg)
+        self.tela.addstr(0, 0, self.msg_menu)
 
         posicao_scroll = self.ajustar_scroll(posicao_scroll, itens_exibidos)
 

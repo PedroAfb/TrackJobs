@@ -17,8 +17,8 @@ from trackJobs.validador import VALIDADORES
         ("link", "https://jobs.example.com/valid", True),  # URL válida
         ("status", "inexistente", False),  # Status inválido
         ("status", "aceito", True),  # Status válido
-        ("data de aplicaçao", "2021-02-30", False),  # Data inválida
-        ("data de aplicaçao", "2023-10-10", True),  # Data válida
+        ("data_aplicaçao", "2021-02-30", False),  # Data inválida
+        ("data_aplicaçao", "2023-10-10", True),  # Data válida
         ("descriçao", "", True),  # Descrição sempre válida
     ],
 )

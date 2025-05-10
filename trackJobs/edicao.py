@@ -107,6 +107,8 @@ class MenuEdicao(Menu):
                 return result
 
     def exibe_mensagem_sucesso(self, novo_status, campo_atualizado="Status"):
+        if campo_atualizado == "Data_aplicaçao":
+            campo_atualizado = "Data de aplicação"
         self.tela.clear()
         self.tela.addstr(
             5, 5, f"✅ Campo {campo_atualizado} atualizado com sucesso!", curses.A_BOLD

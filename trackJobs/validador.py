@@ -81,7 +81,7 @@ VALIDADORES = {
     "descriçao": lambda db_path, novo_dado, console: valida_descricao(
         novo_dado, console
     ),
-    "data de aplicaçao": lambda db_path, novo_dado, console: valida_data_aplicacao(
+    "data_aplicaçao": lambda db_path, novo_dado, console: valida_data_aplicacao(
         novo_dado, console
     ),
     "nome_empresa": lambda db_path, novo_dado, console: valida_nome(novo_dado, console),

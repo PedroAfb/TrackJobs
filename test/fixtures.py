@@ -180,7 +180,7 @@ mensagem_sucesso_edicao_link = [
 ]
 
 mensagem_sucesso_edicao_data = [
-    "✅ Campo Data de aplicaçao atualizado com sucesso!",
+    "✅ Campo Data de aplicação atualizado com sucesso!",
     "Pressione qualquer tecla para voltar ao menu principal",
 ]
 

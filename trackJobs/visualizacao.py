@@ -11,13 +11,13 @@ MOVER_BAIXO = curses.KEY_DOWN
 
 
 class MenuVisualizacao(Menu):
-    def __init__(self, tela):
+    def __init__(self, tela, db_path="track_jobs.db"):
         msg_menu = (
             "Selecione uma candidatura para visualizar os detalhes "
             "(Setas para navegar, Enter para selecionar "
             "e ESC para retornar ao menu principal)"
         )
-        super().__init__(tela, msg_menu)
+        super().__init__(tela, msg_menu, db_path)
         self.max_linhas, self.max_colunas = self.tela.getmaxyx()
         self.conteudo = []
 
@@ -26,6 +26,10 @@ class MenuVisualizacao(Menu):
         col_max = self.max_colunas - 4  # margem
 
         for chave, valor in candidatura.items():
+            if chave == "data_aplicaçao":
+                chave = "data de aplicação"
+            elif chave == "descriçao":
+                chave = "descrição"
             if valor is None:
                 valor = ""
             if chave not in ["id", "idEmpresa"]:
@@ -74,11 +78,11 @@ class MenuVisualizacao(Menu):
 
 
 def visualizacao_candidatura(tela, db_path="track_jobs.db"):
-    menu = MenuVisualizacao(tela)
+    menu = MenuVisualizacao(tela, db_path)
     try:
         while True:
-            cand_selecionada = menu.escolha_candidatura(db_path)
-            cand_selecionada = get_vaga(db_path, cand_selecionada["link"])
+            cand_selecionada = menu.escolha_candidatura()
+            cand_selecionada = get_vaga(menu.db, cand_selecionada["link"])
             menu.menu_da_candidatura(cand_selecionada)
 
     except RetornarMenuException:

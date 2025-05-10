@@ -1,5 +1,4 @@
 import curses
-import sqlite3
 
 import questionary
 
@@ -7,23 +6,24 @@ from .exceptions import RetornarMenuException
 from .menu import FILTROS
 from .menu import Menu
 from .utils import filtra_candidaturas
+from trackJobs.banco_de_dados import BancoDeDados
 
 
 class MenuRemocao(Menu):
-    def __init__(self, tela):
+    def __init__(self, tela, db_path="track_jobs.db"):
         msg_menu = (
             "Selecione uma candidatura para remover "
             "(Setas para navegar, Enter para selecionar "
             "e ESC para retornar ao menu principal)"
         )
-        super().__init__(tela, msg_menu)
+        super().__init__(tela, msg_menu, db_path)
 
-    def escolha_candidatura(self, db_path="track_jobs.db"):
+    def escolha_candidatura(self):
         index_candidatura_escolhida = "nenhum"
 
         certainty = False
         while True:
-            candidaturas = filtra_candidaturas(db_path, index_candidatura_escolhida)
+            candidaturas = filtra_candidaturas(self.db, index_candidatura_escolhida)
             index_candidatura_escolhida = self.menu_candidaturas(candidaturas)
 
             if index_candidatura_escolhida not in FILTROS.keys():
@@ -44,20 +44,19 @@ class MenuRemocao(Menu):
         self.tela.getch()
 
 
-def realiza_remocao(db_path, candidatura):
-    conexao = sqlite3.connect(db_path)
-    cursor = conexao.cursor()
+def realiza_remocao(db: BancoDeDados, candidatura):
+    conexao = db.conexao
+    cursor = db.cursor
     comando = "DELETE FROM vagas WHERE link = ?"
     cursor.execute(comando, (candidatura["link"],))
     conexao.commit()
-    conexao.close()
 
 
 def remocao(tela, db_path="track_jobs.db"):
-    menu_remocao = MenuRemocao(tela)
+    menu_remocao = MenuRemocao(tela, db_path)
     try:
-        cand_selecionada = menu_remocao.escolha_candidatura(db_path)
-        realiza_remocao(db_path, cand_selecionada)
+        cand_selecionada = menu_remocao.escolha_candidatura()
+        realiza_remocao(menu_remocao.db, cand_selecionada)
 
         menu_remocao.tela.clear()
         menu_remocao.exibe_mensagem_sucesso(None)

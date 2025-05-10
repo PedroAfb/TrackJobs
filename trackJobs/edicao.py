@@ -11,17 +11,21 @@ from .menu import VOLTAR_MENU
 from .utils import get_vaga
 from .utils import realiza_update
 
-CAMPOS_VAGA = ["nome", "link", "data de aplicaçao", "status", "descriçao"]
+CAMPOS_VAGA = ["nome", "link", "data_aplicaçao", "status", "descriçao"]
 
 
 class MenuEdicao(Menu):
-    def __init__(self, tela):
-        super().__init__(tela)
+    def __init__(self, tela, db_path="track_jobs.db"):
+        super().__init__(tela, db_path=db_path)
         self.index_campo_atual = 0
 
     def exibir_campo(self, campo, dados, i, campo_pra_print):
         _, largura = self.tela.getmaxyx()
         margem = 2  # Margem de segurança para evitar estouro
+        if campo == "data_aplicaçao":
+            campo = "data de aplicação"
+        elif campo == "descriçao":
+            campo = "descrição"
 
         if (
             campo_pra_print == self.index_campo_atual
@@ -44,7 +48,7 @@ class MenuEdicao(Menu):
         )
         self.tela.addstr(i + 2, 2, msg_truncada, estilo)
 
-    def interpreta_teclado(self, opcoes_menu):
+    def interpreta_teclado_menu_edicao(self):
         entrada_user = self.tela.getch()  # Aguarda entrada do teclado
 
         if (
@@ -96,7 +100,7 @@ class MenuEdicao(Menu):
 
             self.exibir_menu_edicao(candidatura, itens_exibidos, posicao_scroll)
 
-            result = self.interpreta_teclado(None)
+            result = self.interpreta_teclado_menu_edicao()
             if result:
                 return result
 
@@ -111,10 +115,10 @@ class MenuEdicao(Menu):
 
 def edicao(tela, db_path="track_jobs.db"):
     try:
-        menu_edicao = MenuEdicao(tela)
+        menu_edicao = MenuEdicao(tela, db_path)
 
-        cand_selecionada = menu_edicao.escolha_candidatura(db_path)
-        cand_selecionada = get_vaga(db_path, cand_selecionada["link"])
+        cand_selecionada = menu_edicao.escolha_candidatura()
+        cand_selecionada = get_vaga(menu_edicao.db, cand_selecionada["link"])
         campo_selecionado = menu_edicao.menu_edicao(cand_selecionada)
         tela.clear()
         novo_dado = (
@@ -126,9 +130,9 @@ def edicao(tela, db_path="track_jobs.db"):
             .strip()
         )
         # TODO: Adicionar validação de dados
-        realiza_update(db_path, cand_selecionada, campo_selecionado, novo_dado)
+        realiza_update(menu_edicao.db, cand_selecionada, campo_selecionado, novo_dado)
 
-        menu_edicao.exibe_mensagem_sucesso(tela, campo_selecionado.capitalize())
+        menu_edicao.exibe_mensagem_sucesso(None, campo_selecionado.capitalize())
 
     except RetornarMenuException:
         pass

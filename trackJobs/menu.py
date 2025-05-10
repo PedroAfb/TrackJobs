@@ -2,6 +2,7 @@ import curses
 
 from .exceptions import RetornarMenuException
 from .utils import filtra_candidaturas
+from trackJobs.banco_de_dados import BancoDeDados
 
 FILTROS = {"limpa_filtro": 0, "nome": 1, "link": 2, "status": 3, "nenhum": -1}
 MOVER_BAIXO = curses.KEY_DOWN
@@ -12,9 +13,10 @@ MENU_VAZIO = 4
 
 
 class Menu:
-    def __init__(self, tela, msg_menu: str = ""):
+    def __init__(self, tela, msg_menu: str = "", db_path: str = "track_jobs.db"):
         self.tela = tela
         self.index_candidatura_atual = 0
+        self.db = BancoDeDados(db_path)
         if msg_menu:
             self.msg_menu = msg_menu
         else:
@@ -153,10 +155,10 @@ class Menu:
             if result is not None:
                 return result
 
-    def escolha_candidatura(self, db_path="track_jobs.db"):
+    def escolha_candidatura(self):
         index_candidatura_escolhida = "nenhum"
         while index_candidatura_escolhida in FILTROS.keys():
-            candidaturas = filtra_candidaturas(db_path, index_candidatura_escolhida)
+            candidaturas = filtra_candidaturas(self.db, index_candidatura_escolhida)
             index_candidatura_escolhida = self.menu_candidaturas(candidaturas)
 
         return candidaturas[index_candidatura_escolhida]

@@ -5,6 +5,7 @@ import pytest
 
 from .db_test import criar_banco_teste
 from .db_test import remove_banco_teste
+from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.cadastro import cadastra_candidatura
 from trackJobs.cadastro import obter_data_candidatura
 from trackJobs.cadastro import obter_link_vaga
@@ -71,15 +72,16 @@ def test_validacao_link_vaga_no_prompt(mock_input, expected_output):
 
     """
     criar_banco_teste()
+    db = BancoDeDados("track_jobs_test.db")
     with patch("trackJobs.cadastro.Prompt.ask", side_effect=mock_input):
         if expected_output == RetornarMenuException:
             with pytest.raises(
                 RetornarMenuException
             ):  # Verifica se a exceção foi levantada
-                obter_link_vaga(db_path="track_jobs_test.db")
+                obter_link_vaga(db)
         else:
             assert (
-                obter_link_vaga(db_path="track_jobs_test.db") == expected_output
+                obter_link_vaga(db) == expected_output
             )  # Verifica se retornou o link correto
     remove_banco_teste()
 
@@ -135,10 +137,9 @@ def test_site_invalido_empresa(capsys):
     expected_output = "URL inválida. Digite um link válido ou deixe em branco."
 
     with patch("trackJobs.cadastro.Prompt.ask", side_effect=prompt_input):
-        conexao = sqlite3.connect("track_jobs_test.db")
-        cursor = conexao.cursor()
+        db = BancoDeDados("track_jobs_test.db")
 
-        obter_site_empresa(cursor)
+        obter_site_empresa(db)
         captured_stdout = capsys.readouterr()
         assert expected_output in captured_stdout.out
 
@@ -154,10 +155,8 @@ def test_site_duplicado_empresa(dict_cadastro_com_empresa, capsys):
 
     realiza_cadastro_com_empresa(dict_cadastro_com_empresa)
     with patch("trackJobs.cadastro.Prompt.ask", side_effect=prompt_input):
-        conexao = sqlite3.connect("track_jobs_test.db")
-        cursor = conexao.cursor()
-
-        obter_site_empresa(cursor)
+        db = BancoDeDados("track_jobs_test.db")
+        obter_site_empresa(db)
         captured_stdout = capsys.readouterr()
         assert expected_output in captured_stdout.out
 

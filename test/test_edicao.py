@@ -1,4 +1,3 @@
-import sqlite3
 from unittest.mock import patch
 
 import pytest
@@ -7,17 +6,17 @@ from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
 from .test_menu import setup_tela_mock
 from .test_menu import verifica_saida_esperada
+from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.edicao import edicao
 from trackJobs.edicao import MenuEdicao
 from trackJobs.menu import Menu
 
 
 def get_vaga_id(db_path, id):
-    conexao = sqlite3.connect(db_path)
-    cursor = conexao.cursor()
+    db = BancoDeDados(db_path)
+    cursor = db.cursor
     cursor.execute(f"SELECT * FROM vagas WHERE id = {id}")
     vaga = cursor.fetchone()
-    conexao.close()
     if vaga:
         # Pega o nome das colunas
         colunas = [descricao[0] for descricao in cursor.description]

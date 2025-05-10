@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
+from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.exceptions import RetornarMenuException
 from trackJobs.visualizacao import MenuVisualizacao
 from trackJobs.visualizacao import visualizacao_candidatura
@@ -91,9 +92,7 @@ def test_visualizacao_candidatura_simple(mock_tela):
             "trackJobs.visualizacao.MenuVisualizacao.menu_da_candidatura",
             side_effect=RetornarMenuException,
         ):
-            visualizacao_candidatura(mock_tela)
-
+            visualizacao_candidatura(mock_tela, "track_jobs_test.db")
+        db = BancoDeDados("track_jobs_test.db")
         mock_escolha_candidatura.assert_called_once()
-        mock_get_vaga.assert_called_once_with(
-            "track_jobs.db", "http://example.com/vaga1"
-        )
+        mock_get_vaga.assert_called_once_with(db, "http://example.com/vaga1")

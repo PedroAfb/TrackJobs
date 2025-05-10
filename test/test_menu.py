@@ -6,6 +6,7 @@ import pytest
 
 from .db_test import criar_banco_teste_com_dados
 from .db_test import remove_banco_teste
+from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.menu import CANDIDATURA_SELECIONADA
 from trackJobs.menu import Menu
 from trackJobs.utils import get_candidaturas_com_filtro
@@ -76,15 +77,18 @@ def test_candidaturas(candidaturas, esperado, request):
 )
 def test_status_mostra_candidaturas_com_filtros(filtro, tipo_filtro, esperado, request):
     criar_banco_teste_com_dados()
+    db = BancoDeDados("track_jobs_test.db")
     candidaturas = get_candidaturas_com_filtro(
-        "track_jobs_test.db", filtro=filtro, tipo_filtro=tipo_filtro
+        db, filtro=filtro, tipo_filtro=tipo_filtro
     )
     esperado_candidaturas = request.getfixturevalue(esperado)
 
     with open("saida_teste.txt", "w") as saida:
         with patch("curses.curs_set"):
             tela_mock = setup_tela_mock(saida)
-            Menu(tela_mock).menu_candidaturas(candidaturas)
+            Menu(tela_mock, db_path="track_jobs_test.db").menu_candidaturas(
+                candidaturas
+            )
 
     verifica_saida_esperada(esperado_candidaturas)
     remove_banco_teste()

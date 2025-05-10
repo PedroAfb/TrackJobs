@@ -1,12 +1,12 @@
 import os
-import sqlite3
+
+from trackJobs.banco_de_dados import BancoDeDados
 
 
 def criar_banco_teste():
-    conexao = sqlite3.connect(
-        "track_jobs_test.db"
-    )  # Banco de dados separado para testes
-    cursor = conexao.cursor()
+    db = BancoDeDados("track_jobs_test.db")
+    conexao = db.conexao
+    cursor = db.cursor
 
     # Criar tabela de empresas
     cursor.execute(
@@ -39,14 +39,12 @@ def criar_banco_teste():
     )
 
     conexao.commit()
-    conexao.close()
 
 
 def criar_banco_teste_com_dados():
-    conexao = sqlite3.connect(
-        "track_jobs_test.db"
-    )  # Banco de dados separado para testes
-    cursor = conexao.cursor()
+    db = BancoDeDados("track_jobs_test.db")
+    conexao = db.conexao
+    cursor = db.cursor
 
     # Criar tabela de empresas
     cursor.execute(
@@ -182,9 +180,11 @@ def criar_banco_teste_com_dados():
     )
 
     conexao.commit()
-    conexao.close()
 
 
 def remove_banco_teste():
+    db = BancoDeDados("track_jobs_test.db")
+    db.close_conexao()
+
     if os.path.exists("track_jobs_test.db"):
         os.remove("track_jobs_test.db")

@@ -1,13 +1,12 @@
 import sqlite3
 from datetime import date
-from sqlite3 import Connection
-from sqlite3 import Cursor
 
 import click
 import validators
 from rich.console import Console
 from rich.prompt import Prompt
 
+from .banco_de_dados import BancoDeDados
 from .exceptions import RetornarMenuException
 
 console = Console()
@@ -20,15 +19,15 @@ def verificar_saida(valor):
         raise RetornarMenuException
 
 
-def obter_site_empresa(cursor_db: Cursor):
+def obter_site_empresa(db: BancoDeDados):
     while True:
         site_empresa = Prompt.ask("Qual o site da empresa?[OPCIONAL]")
 
         if not site_empresa:
             return None
         elif validators.url(site_empresa):
-            cursor_db.execute("SELECT 1 FROM empresas WHERE site = ?", (site_empresa,))
-            if not cursor_db.fetchone():
+            db.cursor.execute("SELECT 1 FROM empresas WHERE site = ?", (site_empresa,))
+            if not db.cursor.fetchone():
                 return site_empresa
             msg = (
                 "[bold red]Essa URL já foi cadastrada.[/bold red]"
@@ -44,17 +43,14 @@ def obter_site_empresa(cursor_db: Cursor):
             console.print(msg)
 
 
-def obter_link_vaga(db_path="track_jobs.db"):
+def obter_link_vaga(db: BancoDeDados):
     link = None
     while link != VOLTAR_MENU:
         link = Prompt.ask("Qual o link da vaga?[OBRIGATÓRIO]")
 
         if validators.url(link):
-            conexao_db = sqlite3.connect(db_path)
-            cursor_db = conexao_db.cursor()
-            cursor_db.execute("SELECT 1 FROM vagas WHERE link = ?", (link,))
-
-            if not cursor_db.fetchone():
+            db.cursor.execute("SELECT 1 FROM vagas WHERE link = ?", (link,))
+            if not db.cursor.fetchone():
                 return link
 
             msg = (
@@ -65,7 +61,6 @@ def obter_link_vaga(db_path="track_jobs.db"):
             )
             console.print(msg)
 
-            conexao_db.close()
         else:
             msg = (
                 "[bold red]URL inválida. Digite um link válido.\n[/bold red]"
@@ -77,9 +72,9 @@ def obter_link_vaga(db_path="track_jobs.db"):
     raise RetornarMenuException
 
 
-def verifica_empresa_sql(cursor_db: Cursor, nome_empresa: str):
-    cursor_db.execute("SELECT 1 FROM empresas WHERE nome = ?", (nome_empresa,))
-    return cursor_db.fetchone()
+def verifica_empresa_sql(db: BancoDeDados, nome_empresa: str):
+    db.cursor.execute("SELECT 1 FROM empresas WHERE nome = ?", (nome_empresa,))
+    return db.cursor.fetchone()
 
 
 def obter_data_candidatura():
@@ -138,14 +133,15 @@ def coleta_dados_vaga():
     return dados_candidatura
 
 
-def coleta_dados_empresa(cursor_db: Cursor):
-    site_empresa = obter_site_empresa(cursor_db)
+def coleta_dados_empresa(db: BancoDeDados):
+    site_empresa = obter_site_empresa(db)
     setor_empresa = Prompt.ask("Qual o setor da empresa?[OPCIONAL]")
     return site_empresa, setor_empresa
 
 
-def cadastra_empresa(conexao_db: Connection, cursor_db: Cursor, nome_empresa: str):
-    site_empresa, setor_empresa = coleta_dados_empresa(cursor_db)
+def cadastra_empresa(db: BancoDeDados, nome_empresa: str):
+    cursor_db = db.cursor
+    site_empresa, setor_empresa = coleta_dados_empresa(db)
 
     msg_insert_empresas = """
         INSERT INTO empresas (nome, site, setor) VALUES
@@ -159,14 +155,15 @@ def cadastra_empresa(conexao_db: Connection, cursor_db: Cursor, nome_empresa: st
             setor_empresa,
         ),
     )
-    conexao_db.commit()
+    db.conexao.commit()
 
     console.print(
         "[bold green]\nCadastro da empresa realizado com sucesso!\n[/bold green]"
     )
 
 
-def cadastra_vaga(conexao_db: Connection, cursor_db: Cursor, dados_candidatura: dict):
+def cadastra_vaga(db: BancoDeDados, dados_candidatura: dict):
+    cursor_db = db.cursor
     if dados_candidatura["nome_empresa"]:  # Adiciona vaga com uma empresa associada
         id_empresa = cursor_db.execute(
             "SELECT id FROM empresas WHERE nome = ?",
@@ -197,7 +194,7 @@ def cadastra_vaga(conexao_db: Connection, cursor_db: Cursor, dados_candidatura: 
         )
 
     cursor_db.execute(msg_insert_vagas, params)
-    conexao_db.commit()
+    db.conexao.commit()
 
 
 def cadastra_candidatura(db_path="track_jobs.db", teste=False):
@@ -209,27 +206,24 @@ def cadastra_candidatura(db_path="track_jobs.db", teste=False):
     try:
         dados_candidatura = coleta_dados_vaga()
 
-        conexao_db = sqlite3.connect(db_path)
-        cursor_db = conexao_db.cursor()
+        db = BancoDeDados(db_path)
 
         nome_empresa = dados_candidatura["nome_empresa"]
-        empresa_existe = verifica_empresa_sql(cursor_db, nome_empresa)
+        empresa_existe = verifica_empresa_sql(db, nome_empresa)
 
         if nome_empresa and not empresa_existe:
-            cadastra_empresa(conexao_db, cursor_db, nome_empresa)
+            cadastra_empresa(db, nome_empresa)
 
-        cadastra_vaga(conexao_db, cursor_db, dados_candidatura)
+        cadastra_vaga(db, dados_candidatura)
 
         console.print(
             "[bold green]\nCadastro da vaga realizado com sucesso!\n[/bold green]"
         )
-        conexao_db.close()
 
     except RetornarMenuException:
         pass
 
     except sqlite3.IntegrityError as e:
-        conexao_db.close()
         erro_duplicado = str(e)
         console.print(f"[bold yellow]Detalhes:[/bold yellow] {erro_duplicado}")
         campo_duplicado = erro_duplicado.split(" ")[-1]
@@ -240,10 +234,13 @@ def cadastra_candidatura(db_path="track_jobs.db", teste=False):
         console.print(msg)
         if teste:
             raise e
+        db.close_conexao()
+        db.conexao.rollback()
         cadastra_candidatura()
 
     except Exception as e:
-        conexao_db.close()
+        db.close_conexao()
+        db.conexao.rollback()
         console.print("[bold red]Erro inesperado ao cadastrar a vaga.[/bold red]")
         console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
         cadastra_candidatura()

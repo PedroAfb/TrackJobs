@@ -5,9 +5,9 @@ import questionary
 from rich.console import Console
 from rich.panel import Panel
 
+from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.cadastro import cadastra_candidatura
 from trackJobs.edicao import edicao
-from trackJobs.exceptions import InicializacaoBancoException
 from trackJobs.remocao import remocao
 from trackJobs.status import edita_status
 from trackJobs.utils import CUSTOM_STYLE
@@ -20,43 +20,18 @@ REMOVER_CANDIDATURA = 4
 
 console = Console()
 
+
 # TODO: Criar uma classe para o banco de dados
-
-
 def inicializa_banco():
     try:
-        conexao = sqlite3.connect("track_jobs.db")
-        cursor = conexao.cursor()
-
-        cursor.execute(
-            """create table if not exists empresas(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL UNIQUE,
-            site TEXT,
-            setor TEXT
-            )"""
+        banco = BancoDeDados()
+        banco.inicializa_banco()
+    except sqlite3.Error as e:
+        console.print(
+            "[bold red]Erro ao conectar ao banco de dados:[/bold red]",
+            str(e),
         )
-
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS vagas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            link TEXT NOT NULL UNIQUE,
-            status TEXT DEFAULT 'candidatar-se'
-            CHECK(status IN
-            ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
-            data_aplicaçao DATE,
-            descriçao TEXT,
-            idEmpresa INTEGER,
-            FOREIGN KEY(idEmpresa) REFERENCES empresas(id)
-            )"""
-        )
-
-        conexao.close()
-
-    except Exception as e:
-        console.print(f"[bold yellow]Erro técnico:[/bold yellow] {str(e)}")
-        raise InicializacaoBancoException("Erro ao inicializar o banco de dados")
+        exit(1)
 
 
 def menu():
@@ -95,6 +70,9 @@ def menu():
             curses.wrapper(remocao)
         else:
             break
+
+    db = BancoDeDados()
+    db.close_conexao()
 
 
 menu()

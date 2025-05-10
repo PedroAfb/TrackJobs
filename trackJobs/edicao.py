@@ -1,6 +1,7 @@
 import curses
 
 import questionary
+from rich.console import Console
 
 from .exceptions import RetornarMenuException
 from .menu import CANDIDATURA_SELECIONADA
@@ -10,6 +11,7 @@ from .menu import MOVER_CIMA
 from .menu import VOLTAR_MENU
 from .utils import get_vaga
 from .utils import realiza_update
+from .validador import VALIDADORES
 
 CAMPOS_VAGA = ["nome", "link", "data_aplicaçao", "status", "descriçao"]
 
@@ -121,15 +123,18 @@ def edicao(tela, db_path="track_jobs.db"):
         cand_selecionada = get_vaga(menu_edicao.db, cand_selecionada["link"])
         campo_selecionado = menu_edicao.menu_edicao(cand_selecionada)
         tela.clear()
-        novo_dado = (
-            questionary.text(
-                "\nInforme o novo valor do campo "
-                f"{campo_selecionado.capitalize()}:\n"
+        while True:
+            novo_dado = (
+                questionary.text(
+                    "\nInforme o novo valor do campo "
+                    f"{campo_selecionado.capitalize()}:\n",
+                )
+                .ask()
+                .strip()
             )
-            .ask()
-            .strip()
-        )
-        # TODO: Adicionar validação de dados
+            if VALIDADORES[campo_selecionado](db_path, novo_dado, Console()):
+                break
+
         realiza_update(menu_edicao.db, cand_selecionada, campo_selecionado, novo_dado)
 
         menu_edicao.exibe_mensagem_sucesso(None, campo_selecionado.capitalize())

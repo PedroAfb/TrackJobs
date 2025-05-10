@@ -95,14 +95,14 @@ def obter_data_candidatura():
             )
 
 
-def coleta_dados_vaga():
+def coleta_dados_vaga(db: BancoDeDados):
     dados_candidatura = dict()
 
     nome = click.prompt("Qual o nome da vaga?[OBRIGATÓRIO]\n")
     verificar_saida(nome)
     dados_candidatura["nome"] = nome.strip().lower()
 
-    dados_candidatura["link"] = obter_link_vaga()
+    dados_candidatura["link"] = obter_link_vaga(db)
 
     status = Prompt.ask(
         "Qual o status da candidatura?[OPCIONAL]",
@@ -204,9 +204,8 @@ def cadastra_candidatura(db_path="track_jobs.db", teste=False):
     )
 
     try:
-        dados_candidatura = coleta_dados_vaga()
-
         db = BancoDeDados(db_path)
+        dados_candidatura = coleta_dados_vaga(db)
 
         nome_empresa = dados_candidatura["nome_empresa"]
         empresa_existe = verifica_empresa_sql(db, nome_empresa)

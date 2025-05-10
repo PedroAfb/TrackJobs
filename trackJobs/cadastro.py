@@ -234,13 +234,13 @@ def cadastra_candidatura(db_path="track_jobs.db", teste=False):
         console.print(msg)
         if teste:
             raise e
-        db.close_conexao()
         db.conexao.rollback()
+        db.close_conexao()
         cadastra_candidatura()
 
     except Exception as e:
-        db.close_conexao()
         db.conexao.rollback()
+        db.close_conexao()
         console.print("[bold red]Erro inesperado ao cadastrar a vaga.[/bold red]")
         console.print(f"[bold yellow]Detalhes:[/bold yellow] {str(e)}")
         cadastra_candidatura()

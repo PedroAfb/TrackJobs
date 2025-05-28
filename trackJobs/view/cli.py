@@ -17,6 +17,7 @@ class CliView:
         self.console = Console()
 
     def cadastro(self) -> None:
+        """Método para cadastrar uma nova candidatura"""
         self.console.print("[bold magenta]\nCadastro[/bold magenta]\n")
         try:
             dados_candidatura = self._coletar_dados_vaga()
@@ -109,13 +110,16 @@ class CliView:
         resultado_escolha = self.controller.processar_escolha_empresa(escolha)
 
         if resultado_escolha["tipo"] == "nenhuma":
-            return {"nome_empresa": None}
+            return {
+                "nome_empresa": None,
+                "site_empresa": None,
+                "setor_empresa": None,
+            }
 
         elif resultado_escolha["tipo"] == "existente":
-            return {"nome_empresa": resultado_escolha["dados"]}
+            return self.controller.obter_dados_empresa(resultado_escolha["dados"])
 
         elif resultado_escolha["tipo"] == "nova":
-            # Coletar dados da nova empresa
             return self._coletar_dados_empresa()
 
     def _coletar_dados_empresa(self):
@@ -146,6 +150,7 @@ class CliView:
         return dados_empresa
 
     def menu_principal(self) -> None:
+        """Exibe o menu principal da ferramenta"""
         while True:
             self.console.print(
                 Panel(

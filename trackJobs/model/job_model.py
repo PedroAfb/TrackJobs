@@ -1,7 +1,7 @@
 from .cadastro import cadastra_candidatura
 from .cadastro import get_campos_cadastro_empresa
 from .cadastro import get_campos_cadastro_vaga
-from .cadastro import verifica_empresa_por_nome
+from .cadastro import get_empresa_por_nome
 from .validador import VALIDADORES
 from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.exceptions import TrackJobsException
@@ -12,9 +12,11 @@ class JobModel:
         self.db = BancoDeDados(db_path)
 
     def cadastro(self, dados_candidatura):
+        """Cadastra uma nova candidatura"""
         cadastra_candidatura(dados_candidatura)
 
     def validar_campo(self, campo, valor, console):
+        """Valida o campo de acordo com os validadores definidos"""
         if campo in VALIDADORES:
             try:
                 return VALIDADORES[campo](self.db, valor, console)
@@ -23,9 +25,11 @@ class JobModel:
         return False
 
     def campos_cadastro_vaga(self):
+        """Retorna os campos necessários para cadastro de vaga"""
         return get_campos_cadastro_vaga(self.db)
 
     def campos_cadastro_empresa(self):
+        """Retorna os campos necessários para cadastro de empresa"""
         return get_campos_cadastro_empresa(self.db)
 
     def listar_nome_empresas(self):
@@ -35,28 +39,6 @@ class JobModel:
         empresas = [row[0].capitalize() for row in cursor.fetchall()]
         return empresas
 
-    def get_id_empresa(self, nome_empresa):
-        """Retorna o ID da empresa pelo nome"""
-        self.db.cursor.execute(
-            "SELECT id FROM empresas WHERE nome = ? LIMIT 1", (nome_empresa,)
-        )
-        dados = self.db.cursor.fetchone()
-
-        if dados:
-            return {"id_empresa": dados[0]}
-        return None
-
-    def get_nome_empresa(self, id_empresa):
-        """Retorna o nome da empresa pelo ID"""
-        self.db.cursor.execute(
-            "SELECT nome FROM empresas WHERE id = ? LIMIT 1", (id_empresa,)
-        )
-        dados = self.db.cursor.fetchone()
-
-        if dados:
-            return {"nome_empresa": dados[0]}
-        return None
-
-    def empresa_existe(self, nome_empresa):
-        """Verifica se empresa já existe"""
-        return verifica_empresa_por_nome(self.db, nome_empresa) is not None
+    def get_empresa(self, nome_empresa):
+        """Retorna os dados de uma empresa através do nome"""
+        return get_empresa_por_nome(self.db, nome_empresa)

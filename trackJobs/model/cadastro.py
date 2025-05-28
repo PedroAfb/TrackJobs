@@ -1,15 +1,12 @@
 import sqlite3
 
-from rich.console import Console
-
 from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.exceptions import CampoDuplicadoException
 from trackJobs.exceptions import ErroCandidaturaException
 
-console = Console()
-
 
 def get_campos_cadastro_vaga(db: BancoDeDados):
+    """Retorna os campos necessários para cadastro de vaga"""
     cursor = db.cursor
 
     cursor.execute("PRAGMA table_info(vagas)")
@@ -22,6 +19,7 @@ def get_campos_cadastro_vaga(db: BancoDeDados):
 
 
 def get_campos_cadastro_empresa(db: BancoDeDados):
+    """Retorna os campos necessários para cadastro de empresa"""
     cursor = db.cursor
 
     cursor.execute("PRAGMA table_info(empresas)")
@@ -31,7 +29,27 @@ def get_campos_cadastro_empresa(db: BancoDeDados):
     return colunas_empresas
 
 
+def get_empresa_por_nome(db: BancoDeDados, nome_empresa: str):
+    """Retorna os dados de uma empresa através do nome"""
+    if not nome_empresa:
+        return None
+
+    db.cursor.execute(
+        "SELECT nome, site, setor FROM empresas WHERE nome = ?", (nome_empresa,)
+    )
+    empresa = db.cursor.fetchone()
+
+    if empresa:
+        return {
+            "nome_empresa": empresa[0],
+            "site_empresa": empresa[1],
+            "setor_empresa": empresa[2],
+        }
+    return None
+
+
 def verifica_empresa_por_nome(db: BancoDeDados, nome_empresa: str):
+    """Verifica se uma empresa já está cadastrada pelo nome"""
     if not nome_empresa:
         return None
 
@@ -43,15 +61,8 @@ def verifica_empresa_por_nome(db: BancoDeDados, nome_empresa: str):
     return None
 
 
-def verifica_empresa_por_id(db: BancoDeDados, id_empresa: int):
-    if not id_empresa:
-        return None
-
-    db.cursor.execute("SELECT 1 FROM empresas WHERE id = ?", (id_empresa,))
-    return db.cursor.fetchone()
-
-
 def cadastra_empresa(db: BancoDeDados, dados_empresa: str):
+    """Cadastra uma nova empresa no banco de dados"""
     cursor_db = db.cursor
 
     msg_insert_empresas = """
@@ -70,6 +81,7 @@ def cadastra_empresa(db: BancoDeDados, dados_empresa: str):
 
 
 def cadastra_vaga(db: BancoDeDados, dados_candidatura: dict):
+    """Cadastra uma nova vaga no banco de dados"""
     cursor_db = db.cursor
     id_empresa = verifica_empresa_por_nome(db, dados_candidatura["nome_empresa"])
     msg_insert_vagas = """INSERT INTO vagas
@@ -89,13 +101,7 @@ def cadastra_vaga(db: BancoDeDados, dados_candidatura: dict):
 
 
 def cadastra_candidatura(dados_candidatura, db_path="track_jobs.db", teste=False):
-    console.print("[bold magenta]\nCadastro[/bold magenta]\n")
-    console.print(
-        "[bold magenta]Caso queira retornar ao menu, digite 6[/bold magenta]\n"
-    )
-
-    # TODO: Adicionar uma tecla para dar break e retornar ao menu
-
+    """Cadastra uma nova vaga/empresa no banco de dados"""
     try:
         db = BancoDeDados(db_path)
         empresa_existe = verifica_empresa_por_nome(

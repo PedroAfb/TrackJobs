@@ -67,6 +67,10 @@ class JobController:
         else:
             return {"tipo": "existente", "dados": escolha}
 
+    def obter_dados_empresa(self, nome_empresa):
+        """Obtém os dados da empresa pelo nome"""
+        return self.job_model.get_empresa(nome_empresa)
+
     def cadastra_candidatura(self, dados_candidatura):
         try:
             self.job_model.cadastro(dados_candidatura)

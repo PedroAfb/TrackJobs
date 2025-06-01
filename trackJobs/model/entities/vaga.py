@@ -3,6 +3,8 @@ from datetime import date
 from enum import Enum
 from typing import Optional
 
+from trackJobs.model.entities.empresa import Empresa
+
 
 class VagaStatus(Enum):
     CANDIDATARSE = "Candidatar-se"
@@ -20,3 +22,4 @@ class Vaga:
     status: VagaStatus
     data_aplicacao: Optional[date] = None
     descricao: Optional[str] = None
+    empresa: Optional[Empresa] = None

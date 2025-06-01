@@ -5,7 +5,7 @@ from trackJobs.model.entities.empresa import Empresa
 
 
 class EmpresaRepository(Protocol):
-    def cadastrar_empresa(self, empresa: Empresa) -> None:
+    def cadastrar_empresa(self, empresa: Empresa) -> int:
         ...
 
     def listar_nome_empresas(self) -> list[str]:

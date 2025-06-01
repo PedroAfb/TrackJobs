@@ -17,3 +17,7 @@ class EmpresaRepository(Protocol):
 
     def buscar_empresa_por_nome(self, nome: str) -> Optional[Empresa]:
         ...
+
+    def buscar_empresa_por_link(self, link: str) -> Optional[Empresa]:
+        """Retorna os dados de uma empresa através do link"""
+        ...

@@ -1,4 +1,6 @@
 from trackJobs.exceptions import TrackJobsException
+from trackJobs.model.entities.empresa import empresa_to_dictionary
+from trackJobs.model.entities.vaga import dictionary_to_vaga
 from trackJobs.model.job_model import JobModel
 
 
@@ -42,9 +44,9 @@ class JobController:
 
         return campos_empresas
 
-    def validar_campo(self, campo, valor, console):
+    def validar_campo(self, campo, valor):
         try:
-            return self.job_model.validar_campo(campo, valor, console)
+            return self.job_model.validar_campo(campo, valor)
         except TrackJobsException as e:
             return f"[bold red]{e.args[0]}[/bold red]"
 
@@ -69,11 +71,13 @@ class JobController:
 
     def obter_dados_empresa(self, nome_empresa):
         """Obtém os dados da empresa pelo nome"""
-        return self.job_model.get_empresa(nome_empresa)
+        empresa = self.job_model.get_empresa(nome_empresa)
+        return empresa_to_dictionary(empresa) if empresa else None
 
     def cadastra_candidatura(self, dados_candidatura):
         try:
-            self.job_model.cadastro(dados_candidatura)
+            vaga = dictionary_to_vaga(dados_candidatura)
+            self.job_model.cadastro(vaga)
             return (
                 "[bold green]\nCadastro da vaga realizado com sucesso!\n[/bold green]"
             )

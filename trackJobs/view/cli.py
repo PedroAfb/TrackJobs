@@ -81,16 +81,14 @@ class CliView:
                     ).ask()
                 else:
                     resposta = questionary.text(
-                        pergunta, instruction="Caso queira retornar ao menu, digite 6"
+                        pergunta, instruction="Caso queira retornar ao menu, digite 6:"
                     ).ask()
 
                 if resposta == BOTAO_RETORNAR_MENU:
                     raise RetornarMenuException()
 
                 resposta_formatada = self._formatar_campo(campo, resposta)
-                validacao = self.controller.validar_campo(
-                    campo, resposta_formatada, self.console
-                )
+                validacao = self.controller.validar_campo(campo, resposta_formatada)
                 if type(validacao) is str:
                     self.console.print(validacao)
 
@@ -138,9 +136,7 @@ class CliView:
                     raise RetornarMenuException()
 
                 resposta_formatada = self._formatar_campo(campo, resposta)
-                validacao = self.controller.validar_campo(
-                    campo, resposta_formatada, self.console
-                )
+                validacao = self.controller.validar_campo(campo, resposta_formatada)
                 if type(validacao) is str:
                     self.console.print(validacao)
 

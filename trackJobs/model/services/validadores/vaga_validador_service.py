@@ -3,7 +3,6 @@ from datetime import date
 import validators
 
 from trackJobs.exceptions import DataInvalidaException
-from trackJobs.exceptions import ErroCandidaturaException
 from trackJobs.exceptions import NomeVazioException
 from trackJobs.exceptions import StatusInvalidoException
 from trackJobs.exceptions import URLInvalidaException
@@ -26,10 +25,7 @@ class VagaValidadorService:
             raise URLInvalidaException()
 
         elif validators.url(link):
-            try:
-                vaga = self.vaga_repository.buscar_vaga_por_link(link)
-            except ErroCandidaturaException:
-                vaga = None
+            vaga = self.vaga_repository.buscar_vaga_por_link(link)
 
             if vaga is None:
                 return True

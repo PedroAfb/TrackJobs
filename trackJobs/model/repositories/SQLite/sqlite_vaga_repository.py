@@ -1,4 +1,4 @@
-from trackJobs.exceptions import ErroCandidaturaException
+from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.repositories.interfaces.vaga_repository import VagaRepository
 from trackJobs.model.repositories.SQLite.base_repository import BaseSQLiteRepository
@@ -44,14 +44,27 @@ class SQLiteVagaRepository(VagaRepository):
         """Busca uma vaga pelo link"""
         with self.base_repository.transaction() as cursor:
             cursor.execute(
-                """SELECT id, nome, link, status, descriçao, data_aplicaçao, idEmpresa
-                FROM vagas WHERE link = ?""",
+                """SELECT
+                v.id, v.nome, v.link, v.status, v.descricao, v.data_aplicacao,
+                e.id, e.nome, e.site, e.setor
+                FROM vagas v
+                LEFT JOIN empresas e ON v.idEmpresa = e.id
+                WHERE link = ?""",
                 (link,),
             )
             row = cursor.fetchone()
 
         if not row:
-            raise ErroCandidaturaException("Vaga não encontrada.")
+            return None
+
+        empresa = None
+        if row[6] is not None:
+            empresa = Empresa(
+                id=row[6],
+                nome=row[7],
+                site=row[8] if row[8] else None,
+                setor=row[9] if row[9] else None,
+            )
 
         vaga = Vaga(
             id=row[0],
@@ -60,6 +73,6 @@ class SQLiteVagaRepository(VagaRepository):
             status=row[3],
             descricao=row[4],
             data_aplicacao=row[5],
-            id_empresa=row[6] if row[6] is not None else None,
+            empresa=empresa,
         )
         return vaga

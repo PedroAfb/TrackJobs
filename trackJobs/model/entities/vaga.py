@@ -1,23 +1,14 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional
 
 from trackJobs.model.entities.empresa import Empresa
-
-
-class VagaStatus(Enum):
-    CANDIDATARSE = "Candidatar-se"
-    EM_ANALISE = "Em análise"
-    ENTREVISTA = "Entrevista"
-    REJEITADO = "Rejeitado"
-    ACEITO = "Aceito"
 
 
 @dataclass
 class Vaga:
     nome: str
     link: str
-    status: VagaStatus
+    status: str
     id: Optional[int] = None
     data_aplicacao: Optional[str] = None
     descricao: Optional[str] = None
@@ -57,7 +48,7 @@ def vaga_to_dictionary(vaga: Vaga) -> dict:
         "id": vaga.id,
         "nome": vaga.nome,
         "link": vaga.link,
-        "status": vaga.status.value,
+        "status": vaga.status,
         "data_aplicacao": vaga.data_aplicacao,
         "descricao": vaga.descricao,
         "id_empresa": vaga.empresa.id if vaga.empresa and vaga.empresa.id else None,

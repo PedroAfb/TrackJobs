@@ -11,7 +11,7 @@ from .menu import VOLTAR_MENU
 from .utils import get_vaga
 from .utils import realiza_update
 
-CAMPOS_VAGA = ["nome", "link", "data de aplicaçao", "status", "descriçao"]
+CAMPOS_VAGA = ["nome", "link", "data_aplicaçao", "status", "descriçao"]
 
 
 class MenuEdicao(Menu):
@@ -42,7 +42,7 @@ class MenuEdicao(Menu):
         )
         self.tela.addstr(i + 2, 2, msg_truncada, estilo)
 
-    def interpreta_teclado(self, opcoes_menu):
+    def interpreta_teclado_edicao(self):
         entrada_user = self.tela.getch()  # Aguarda entrada do teclado
 
         # Movimentação da seleção para cima e para baixo
@@ -91,7 +91,7 @@ class MenuEdicao(Menu):
                 self.exibir_campo(campo, candidatura[campo], i, campo_pra_print)
                 # cont += 1
 
-            result = self.interpreta_teclado(None)
+            result = self.interpreta_teclado_edicao()
             if result:
                 return result
 

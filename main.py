@@ -43,7 +43,7 @@ def inicializa_banco():
             status TEXT DEFAULT 'candidatar-se'
             CHECK(status IN
             ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
-            data de aplicaçao DATE DEFAULT CURRENT_DATE,
+            data_aplicaçao DATE DEFAULT CURRENT_DATE,
             descriçao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY(idEmpresa) REFERENCES empresas(id)

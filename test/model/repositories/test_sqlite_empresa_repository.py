@@ -58,17 +58,18 @@ class TestSQLiteEmpresaRepository:
         self.cursor_mock.lastrowid = 1
 
         # Act
-        id_empresa = self.empresa_repository.cadastrar_empresa(empresa)
+        empresa_cadastrada = self.empresa_repository.cadastrar_empresa(empresa)
 
         # Assert
         self.cursor_mock.execute.assert_called_once()
         assert "INSERT INTO empresas" in self.cursor_mock.execute.call_args[0][0]
         assert self.cursor_mock.execute.call_args[0][1] == (
-            "TechCorp",
+            "techcorp",
             "https://techcorp.com",
-            "Tecnologia",
+            "tecnologia",
         )
-        assert id_empresa == 1
+        assert empresa_cadastrada.id == 1
+        assert empresa_cadastrada == empresa
 
     def test_cadastrar_empresa_sem_site_e_setor(self):
         """Testa cadastro de empresa sem site e setor"""
@@ -77,12 +78,13 @@ class TestSQLiteEmpresaRepository:
         self.cursor_mock.lastrowid = 1
 
         # Act
-        id_empresa = self.empresa_repository.cadastrar_empresa(empresa)
+        empresa_cadastrada = self.empresa_repository.cadastrar_empresa(empresa)
 
         # Assert
         self.cursor_mock.execute.assert_called_once()
-        assert self.cursor_mock.execute.call_args[0][1] == ("TechCorp", None, None)
-        assert id_empresa == 1
+        assert self.cursor_mock.execute.call_args[0][1] == ("techcorp", None, None)
+        assert empresa_cadastrada.id == 1
+        assert empresa_cadastrada == empresa
 
     def test_listar_nome_empresas(self):
         """Testa listagem de nomes de empresas"""

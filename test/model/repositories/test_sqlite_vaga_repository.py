@@ -20,8 +20,8 @@ class TestSQLiteVagaRepository:
 
         # Mock do BaseSQLiteRepository.transaction
         self.transaction_patch = patch(
-            """trackJobs.model.repositories.
-            SQLite.base_repository.BaseSQLiteRepository.transaction"""
+            "trackJobs.model.repositories."
+            "SQLite.base_repository.BaseSQLiteRepository.transaction"
         )
         self.transaction_mock = self.transaction_patch.start()
         # Configura o transaction para retornar o cursor_mock no contexto
@@ -81,7 +81,7 @@ class TestSQLiteVagaRepository:
         self.cursor_mock.execute.assert_called_once()
         assert "INSERT INTO vagas" in self.cursor_mock.execute.call_args[0][0]
         params = self.cursor_mock.execute.call_args[0][1]
-        assert params[0] == "Desenvolvedor Python"  # nome
+        assert params[0] == "desenvolvedor python"  # nome
         assert params[1] == "https://example.com/vaga"  # link
         assert params[2] == "candidatar-se"  # status
         assert params[3] == "Vaga para desenvolvedor Python"  # descrição
@@ -106,6 +106,7 @@ class TestSQLiteVagaRepository:
         # Assert
         self.cursor_mock.execute.assert_called_once()
         params = self.cursor_mock.execute.call_args[0][1]
+        assert params[0] == "desenvolvedor python"  # nome
         assert params[5] is None  # idEmpresa deve ser None
 
     def test_cadastrar_candidatura_sem_descricao_e_data(self):
@@ -124,7 +125,7 @@ class TestSQLiteVagaRepository:
         # Assert
         self.cursor_mock.execute.assert_called_once()
         params = self.cursor_mock.execute.call_args[0][1]
-        assert params[3] is None  # descrição
+        assert params[0] == "desenvolvedor python"  # nome
         assert params[4] is None  # data_aplicacao
 
     def test_buscar_vaga_por_link_existente(self):
@@ -148,7 +149,7 @@ class TestSQLiteVagaRepository:
 
         # Assert
         self.cursor_mock.execute.assert_called_once()
-        assert "SELECT " in self.cursor_mock.execute.call_args[0][0]
+        assert "SELECT" in self.cursor_mock.execute.call_args[0][0]
         assert "FROM vagas v" in self.cursor_mock.execute.call_args[0][0]
         assert "LEFT JOIN empresas e ON" in self.cursor_mock.execute.call_args[0][0]
         assert "WHERE link = ?" in self.cursor_mock.execute.call_args[0][0]

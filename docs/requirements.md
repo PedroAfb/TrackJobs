@@ -47,7 +47,7 @@ Este documento detalha os requisitos necessários para desenvolver o sistema **T
 
 1. **Banco de Dados**
 
-   <img src="assets/bancoDeDados.png" alt="Diagrama de Banco de Dados" width="600">
+   <img src="../assets/bancoDeDados.png" alt="Diagrama de Banco de Dados" width="600">
 
 2. **Backend**
    - Linguagem: Python.

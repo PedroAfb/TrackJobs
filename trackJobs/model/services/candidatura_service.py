@@ -11,8 +11,11 @@ class CandidaturaService:
         self.vaga_repository = vaga_repository
 
     def cadastra_candidatura(self, vaga: Vaga):
-        if vaga.empresa and not self.empresa_repository.buscar_empresa_por_nome(
-            vaga.empresa.nome
-        ):
-            vaga.empresa.id = self.empresa_repository.cadastrar_empresa(vaga.empresa)
+        empresa = None
+        if vaga.empresa:
+            empresa = self.empresa_repository.buscar_empresa_por_nome(vaga.empresa.nome)
+            if not empresa:
+                empresa = self.empresa_repository.cadastrar_empresa(vaga.empresa)
+
+        vaga.empresa = empresa
         self.vaga_repository.cadastrar_candidatura(vaga)

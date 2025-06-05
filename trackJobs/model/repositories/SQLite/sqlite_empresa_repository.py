@@ -19,8 +19,8 @@ class SQLiteEmpresaRepository(EmpresaRepository):
         colunas_empresas.remove("id_empresa")
         return colunas_empresas
 
-    def cadastrar_empresa(self, empresa: Empresa) -> int:
-        """Cadastra uma nova empresa no banco de dados e retorna o id"""
+    def cadastrar_empresa(self, empresa: Empresa) -> Empresa:
+        """Cadastra uma nova empresa no banco de dados e retorna a empresa cadastrada"""
         with self.base_repository.transaction() as cursor:
             msg_insert_empresas = """
                 INSERT INTO empresas (nome, site, setor) VALUES
@@ -29,12 +29,13 @@ class SQLiteEmpresaRepository(EmpresaRepository):
             cursor.execute(
                 msg_insert_empresas,
                 (
-                    empresa.nome,
+                    empresa.nome.lower(),
                     empresa.site if empresa.site else None,
-                    empresa.setor if empresa.setor else None,
+                    empresa.setor.lower() if empresa.setor else None,
                 ),
             )
-            return cursor.lastrowid
+            empresa.id = cursor.lastrowid
+            return empresa
 
     def listar_nome_empresas(self) -> list[str]:
         with self.base_repository.transaction() as cursor:

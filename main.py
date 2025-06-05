@@ -21,7 +21,6 @@ REMOVER_CANDIDATURA = 4
 console = Console()
 
 
-# TODO: Criar uma classe para o banco de dados
 def inicializa_banco():
     try:
         banco = BancoDeDados()

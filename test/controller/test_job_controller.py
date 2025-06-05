@@ -72,7 +72,7 @@ class TestJobController:
         # Act
         resultado = self.controller.validar_campo("nome", "")
         # Assert
-        assert resultado == "[bold red]Nome não pode estar vazio[/bold red]"
+        assert resultado == "Nome não pode estar vazio"
         self.job_model_mock.validar_campo.assert_called_once_with("nome", "")
 
     def test_obter_opcoes_empresa(self):

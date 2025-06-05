@@ -49,18 +49,25 @@ class TestCandidaturaService:
         )
         # Configure o mock para simular que a empresa não existe
         self.empresa_repository_mock.buscar_empresa_por_nome.return_value = None
-        self.empresa_repository_mock.cadastrar_empresa.return_value = (
-            1  # ID da nova empresa
+
+        # Configura o mock para retornar a própria empresa com ID atualizado
+        empresa_cadastrada = Empresa(
+            id=1, nome="TechCorp", site="https://techcorp.com", setor="Tecnologia"
         )
+        self.empresa_repository_mock.cadastrar_empresa.return_value = empresa_cadastrada
+
         # Act
         self.candidatura_service.cadastra_candidatura(vaga)
+
         # Assert
         self.empresa_repository_mock.buscar_empresa_por_nome.assert_called_once_with(
             empresa.nome
         )
         self.empresa_repository_mock.cadastrar_empresa.assert_called_once_with(empresa)
         self.vaga_repository_mock.cadastrar_candidatura.assert_called_once_with(vaga)
-        assert vaga.empresa.id == 1  # Verifica se o ID da empresa foi atualizado
+
+        # Verifica se a empresa da vaga foi atualizada para a empresa cadastrada
+        assert vaga.empresa == empresa_cadastrada
 
     def test_cadastra_candidatura_com_empresa_existente(self):
         """Testa cadastro de vaga com uma empresa já existente"""

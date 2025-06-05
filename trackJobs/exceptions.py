@@ -39,7 +39,11 @@ class DataInvalidaException(TrackJobsException):
 
 
 class StatusInvalidoException(TrackJobsException):
-    def __init__(self, message="Erro: Status inválido."):
+    def __init__(
+        self,
+        message="Erro: Status deve ter os seguintes valores: "
+        "candidatar-se, em análise, entrevista, rejeitado, aceito.",
+    ):
         super().__init__(message)
 
 
@@ -50,4 +54,9 @@ class ErroCandidaturaException(TrackJobsException):
 
 class CampoDuplicadoException(TrackJobsException):
     def __init__(self, message="Erro: Esse Campo já foi cadastrado."):
+        super().__init__(message)
+
+
+class CampoInvalidoException(TrackJobsException):
+    def __init__(self, message="Erro: Campo inválido."):
         super().__init__(message)

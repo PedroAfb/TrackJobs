@@ -31,7 +31,7 @@ class SQLiteVagaRepository(VagaRepository):
             cursor.execute(
                 msg_insert_candidatura,
                 (
-                    vaga.nome,
+                    vaga.nome.lower(),
                     vaga.link,
                     vaga.status,
                     vaga.descricao,

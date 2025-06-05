@@ -1,6 +1,7 @@
 from trackJobs.exceptions import TrackJobsException
 from trackJobs.model.entities.empresa import empresa_to_dictionary
 from trackJobs.model.entities.vaga import dictionary_to_vaga
+from trackJobs.model.entities.vaga import vaga_to_dictionary
 from trackJobs.model.job_model import JobModel
 
 
@@ -48,7 +49,7 @@ class JobController:
         try:
             return self.job_model.validar_campo(campo, valor)
         except TrackJobsException as e:
-            return f"[bold red]{e.args[0]}[/bold red]"
+            return f"{e.args[0]}"
 
     def obter_opcoes_empresa(self):
         """Retorna as opções disponíveis para empresa"""
@@ -74,12 +75,35 @@ class JobController:
         empresa = self.job_model.get_empresa(nome_empresa)
         return empresa_to_dictionary(empresa) if empresa else None
 
+    def obter_dados_vaga(self, link_vaga):
+        """Obtém os dados da vaga pelo link"""
+        vaga = self.job_model.get_vaga_por_link(link_vaga)
+        dictionary_vaga = vaga_to_dictionary(vaga)
+        return dictionary_vaga
+
     def cadastra_candidatura(self, dados_candidatura):
         try:
             vaga = dictionary_to_vaga(dados_candidatura)
             self.job_model.cadastro(vaga)
             return (
                 "[bold green]\nCadastro da vaga realizado com sucesso!\n[/bold green]"
+            )
+        except TrackJobsException as e:
+            raise e
+
+    def candidaturas_filtradas(self, filtro: str = "", tipo_filtro: str = ""):
+        vagas = self.job_model.candidaturas_filtradas(filtro, tipo_filtro)
+        return [vaga_to_dictionary(vaga) for vaga in vagas]
+
+    def atualizar_candidatura(
+        self, dados_vaga: dict, campo_update: str, novo_dado: str
+    ):
+        try:
+            vaga = dictionary_to_vaga(dados_vaga)
+            self.job_model.atualizar_vaga(vaga, campo_update, novo_dado)
+            return (
+                "[bold green]\nAtualização da vaga "
+                "realizada com sucesso!\n[/bold green]"
             )
         except TrackJobsException as e:
             raise e

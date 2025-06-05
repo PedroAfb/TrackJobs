@@ -15,3 +15,13 @@ class VagaRepository(Protocol):
     def buscar_vaga_por_link(self, link: str) -> Vaga:
         """Busca uma vaga pelo link"""
         ...
+
+    def get_vaga_com_filtro(
+        self, filtro: str = "", tipo_filtro: str = ""
+    ) -> list[Vaga]:
+        """Busca vagas com base em um filtro específico"""
+        ...
+
+    def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str) -> None:
+        """Atualiza uma vaga existente com um novo dado"""
+        ...

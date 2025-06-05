@@ -45,7 +45,7 @@ class SQLiteVagaRepository(VagaRepository):
         with self.base_repository.transaction() as cursor:
             cursor.execute(
                 """SELECT
-                v.id, v.nome, v.link, v.status, v.descricao, v.data_aplicacao,
+                v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
                 e.id, e.nome, e.site, e.setor
                 FROM vagas v
                 LEFT JOIN empresas e ON v.idEmpresa = e.id
@@ -76,3 +76,60 @@ class SQLiteVagaRepository(VagaRepository):
             empresa=empresa,
         )
         return vaga
+
+    def get_vaga_com_filtro(
+        self, filtro: str = "", tipo_filtro: str = ""
+    ) -> list[Vaga]:
+        """Busca vagas com base em um filtro"""
+
+        query = """
+            SELECT
+            v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
+            e.id, e.nome, e.site, e.setor
+            FROM vagas v
+            LEFT JOIN empresas e ON v.idEmpresa = e.id
+        """
+        params = []
+        if tipo_filtro in ["link", "nome", "status"]:
+            query += f" WHERE {tipo_filtro} LIKE ?"
+            params.append(f"%{filtro}%")
+
+        with self.base_repository.transaction() as cursor:
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+        return [
+            Vaga(
+                id=row[0],
+                nome=row[1],
+                link=row[2],
+                status=row[3],
+                descricao=row[4],
+                data_aplicacao=row[5],
+                empresa=Empresa(
+                    id=row[6],
+                    nome=row[7],
+                    site=row[8] if row[8] else None,
+                    setor=row[9] if row[9] else None,
+                )
+                if row[6] is not None
+                else None,
+            )
+            for row in rows
+        ]
+
+    def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str) -> None:
+        """Atualiza uma vaga existente no banco de dados"""
+        with self.base_repository.transaction() as cursor:
+            msg_update_vaga = f"""
+            UPDATE vagas
+            SET {campo_update} = ?
+            WHERE link = ?"""
+
+            cursor.execute(
+                msg_update_vaga,
+                (
+                    novo_dado,
+                    vaga.link,
+                ),
+            )

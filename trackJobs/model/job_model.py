@@ -16,10 +16,10 @@ from trackJobs.model.services.validadores.validador_service import ValidadorServ
 class JobModel:
     def __init__(self, db_path: str = "track_jobs.db"):
         self.db = BancoDeDados(db_path)
-        empresa_repository = SQLiteEmpresaRepository(self.db)
-        vaga_repository = SQLiteVagaRepository(self.db)
+        self.empresa_repository = SQLiteEmpresaRepository(self.db)
+        self.vaga_repository = SQLiteVagaRepository(self.db)
         self.candidatura_service = CandidaturaService(
-            empresa_repository, vaga_repository
+            self.empresa_repository, self.vaga_repository
         )
 
     def cadastro(self, dados_candidatura: Vaga):
@@ -31,30 +31,26 @@ class JobModel:
 
     def validar_campo(self, campo, valor):
         """Valida o campo de acordo com os validadores definidos"""
-        empresa_validador = EmpresaValidadorService(SQLiteEmpresaRepository(self.db))
-        vaga_validador = VagaValidadorService(SQLiteVagaRepository(self.db))
+        empresa_validador = EmpresaValidadorService(self.empresa_repository)
+        vaga_validador = VagaValidadorService(self.vaga_repository)
         validador_service = ValidadorService(empresa_validador, vaga_validador)
         return validador_service.VALIDADORES[campo](valor)
 
     def campos_cadastro_vaga(self):
         """Retorna os campos necessários para cadastro de vaga"""
-        vaga_repository = SQLiteVagaRepository(self.db)
-        return vaga_repository.listar_campos_vaga()
+        return self.vaga_repository.listar_campos_vaga()
 
     def campos_cadastro_empresa(self):
         """Retorna os campos necessários para cadastro de empresa"""
-        empresa_repository = SQLiteEmpresaRepository(self.db)
-        return empresa_repository.listar_campos_empresa()
+        return self.empresa_repository.listar_campos_empresa()
 
     def listar_nome_empresas(self):
         """Retorna lista de empresas cadastradas"""
-        empresa_repository = SQLiteEmpresaRepository(self.db)
-        return empresa_repository.listar_nome_empresas()
+        return self.empresa_repository.listar_nome_empresas()
 
     def get_empresa(self, nome_empresa):
         """Retorna os dados de uma empresa através do nome"""
-        empresa_repository = SQLiteEmpresaRepository(self.db)
-        return empresa_repository.buscar_empresa_por_nome(nome_empresa)
+        return self.empresa_repository.buscar_empresa_por_nome(nome_empresa)
 
     def get_vaga_por_link(self, link: str):
         """Busca uma vaga pelo link"""

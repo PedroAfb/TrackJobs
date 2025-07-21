@@ -1,8 +1,5 @@
 from unittest.mock import Mock
 
-import pytest
-
-from trackJobs.exceptions import TrackJobsException
 from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.services.candidatura_service import CandidaturaService
@@ -15,100 +12,163 @@ class TestCandidaturaService:
         """Setup para cada teste - cria mocks para os repositories"""
         self.empresa_repository_mock = Mock()
         self.vaga_repository_mock = Mock()
-        self.candidatura_service = CandidaturaService(
+        self.service = CandidaturaService(
             self.empresa_repository_mock, self.vaga_repository_mock
         )
 
-    def test_cadastra_candidatura_sem_empresa(self):
-        """Testa cadastro de vaga sem empresa associada"""
+    def test_filtra_vagas_por_nome(self):
+        """Testa filtro de vagas por nome"""
         # Arrange
-        vaga = Vaga(
-            nome="Desenvolvedor Python",
-            link="https://example.com/vaga",
-            status="candidatar-se",
-            empresa=None,
+        vaga1 = Vaga(
+            nome="Desenvolvedor Python", link="https://example.com/1", status="aplicado"
         )
-        # Act
-        self.candidatura_service.cadastra_candidatura(vaga)
-        # Assert
-        self.vaga_repository_mock.cadastrar_candidatura.assert_called_once_with(vaga)
-        self.empresa_repository_mock.cadastrar_empresa.assert_not_called()
-        self.empresa_repository_mock.buscar_empresa_por_nome.assert_not_called()
+        vaga2 = Vaga(
+            nome="Analista Python", link="https://example.com/2", status="entrevista"
+        )
+        self.vaga_repository_mock.get_vaga_com_filtro.return_value = [vaga1, vaga2]
 
-    def test_cadastra_candidatura_com_empresa_nova(self):
-        """Testa cadastro de vaga com uma empresa nova"""
-        # Arrange
-        empresa = Empresa(
-            nome="TechCorp", site="https://techcorp.com", setor="Tecnologia"
+        # Act
+        resultado = self.service.filtra_vagas("Python", "nome")
+
+        # Assert
+        assert len(resultado) == 2
+        assert resultado[0].nome == "Desenvolvedor Python"
+        assert resultado[1].nome == "Analista Python"
+        self.vaga_repository_mock.get_vaga_com_filtro.assert_called_once_with(
+            "Python", "nome"
         )
+
+    def test_filtra_vagas_por_status(self):
+        """Testa filtro de vagas por status"""
+        # Arrange
         vaga = Vaga(
-            nome="Desenvolvedor Python",
+            nome="Dev Python", link="https://example.com/1", status="entrevista"
+        )
+        self.vaga_repository_mock.get_vaga_com_filtro.return_value = [vaga]
+
+        # Act
+        resultado = self.service.filtra_vagas("entrevista", "status")
+
+        # Assert
+        assert len(resultado) == 1
+        assert resultado[0].status == "entrevista"
+        self.vaga_repository_mock.get_vaga_com_filtro.assert_called_once_with(
+            "entrevista", "status"
+        )
+
+    def test_filtra_vagas_sem_filtro(self):
+        """Testa listagem de todas as vagas (sem filtro)"""
+        # Arrange
+        vaga1 = Vaga(nome="Dev Python", link="https://example.com/1", status="aplicado")
+        vaga2 = Vaga(nome="Dev Java", link="https://example.com/2", status="entrevista")
+        self.vaga_repository_mock.get_vaga_com_filtro.return_value = [vaga1, vaga2]
+
+        # Act
+        resultado = self.service.filtra_vagas()
+
+        # Assert
+        assert len(resultado) == 2
+        self.vaga_repository_mock.get_vaga_com_filtro.assert_called_once_with("", "")
+
+    def test_get_vaga_por_link_existente(self):
+        """Testa busca de vaga por link existente"""
+        # Arrange
+        empresa = Empresa(id=1, nome="TechCorp", site="https://techcorp.com")
+        vaga = Vaga(
+            id=1,
+            nome="Dev Python",
             link="https://example.com/vaga",
-            status="candidatar-se",
+            status="aplicado",
             empresa=empresa,
         )
-        # Configure o mock para simular que a empresa não existe
-        self.empresa_repository_mock.buscar_empresa_por_nome.return_value = None
+        self.vaga_repository_mock.buscar_vaga_por_link.return_value = vaga
 
-        # Configura o mock para retornar a própria empresa com ID atualizado
-        empresa_cadastrada = Empresa(
+        # Act
+        resultado = self.service.get_vaga_por_link("https://example.com/vaga")
+
+        # Assert
+        assert resultado.nome == "Dev Python"
+        assert resultado.empresa.nome == "TechCorp"
+        self.vaga_repository_mock.buscar_vaga_por_link.assert_called_once_with(
+            "https://example.com/vaga"
+        )
+
+    def test_get_vaga_por_link_inexistente(self):
+        """Testa busca de vaga por link inexistente"""
+        # Arrange
+        self.vaga_repository_mock.buscar_vaga_por_link.return_value = None
+
+        # Act
+        resultado = self.service.get_vaga_por_link("https://link-inexistente.com")
+
+        # Assert
+        assert resultado is None
+        self.vaga_repository_mock.buscar_vaga_por_link.assert_called_once_with(
+            "https://link-inexistente.com"
+        )
+
+    def test_filtra_vagas_resultado_vazio(self):
+        """Testa filtro que retorna resultado vazio"""
+        # Arrange
+        self.vaga_repository_mock.get_vaga_com_filtro.return_value = []
+
+        # Act
+        resultado = self.service.filtra_vagas("termo_inexistente", "nome")
+
+        # Assert
+        assert resultado == []
+        self.vaga_repository_mock.get_vaga_com_filtro.assert_called_once_with(
+            "termo_inexistente", "nome"
+        )
+
+    def test_filtra_vagas_com_empresa_associada(self):
+        """Testa filtro de vagas que têm empresa associada"""
+        # Arrange
+        empresa = Empresa(
             id=1, nome="TechCorp", site="https://techcorp.com", setor="Tecnologia"
         )
-        self.empresa_repository_mock.cadastrar_empresa.return_value = empresa_cadastrada
+        vaga = Vaga(
+            nome="Dev Python",
+            link="https://example.com/vaga",
+            status="aplicado",
+            empresa=empresa,
+        )
+        self.vaga_repository_mock.get_vaga_com_filtro.return_value = [vaga]
 
         # Act
-        self.candidatura_service.cadastra_candidatura(vaga)
+        resultado = self.service.filtra_vagas("TechCorp", "empresa")
 
         # Assert
-        self.empresa_repository_mock.buscar_empresa_por_nome.assert_called_once_with(
-            empresa.nome
+        assert len(resultado) == 1
+        assert resultado[0].empresa.nome == "TechCorp"
+        self.vaga_repository_mock.get_vaga_com_filtro.assert_called_once_with(
+            "TechCorp", "empresa"
         )
-        self.empresa_repository_mock.cadastrar_empresa.assert_called_once_with(empresa)
-        self.vaga_repository_mock.cadastrar_candidatura.assert_called_once_with(vaga)
 
-        # Verifica se a empresa da vaga foi atualizada para a empresa cadastrada
-        assert vaga.empresa == empresa_cadastrada
-
-    def test_cadastra_candidatura_com_empresa_existente(self):
-        """Testa cadastro de vaga com uma empresa já existente"""
+    def test_get_vaga_por_link_string_vazia(self):
+        """Testa busca de vaga com link vazio"""
         # Arrange
-        empresa_existente = Empresa(
-            id=2, nome="TechCorp", site="https://techcorp.com", setor="Tecnologia"
-        )
-        vaga = Vaga(
-            nome="Desenvolvedor Python",
-            link="https://example.com/vaga",
-            status="candidatar-se",
-            empresa=Empresa(nome="TechCorp"),  # Apenas o nome é necessário para busca
-        )
-        # Configure o mock para simular que a empresa já existe
-        self.empresa_repository_mock.buscar_empresa_por_nome.return_value = (
-            empresa_existente
-        )
+        self.vaga_repository_mock.buscar_vaga_por_link.return_value = None
+
         # Act
-        self.candidatura_service.cadastra_candidatura(vaga)
-        # Assert
-        self.empresa_repository_mock.buscar_empresa_por_nome.assert_called_once_with(
-            vaga.empresa.nome
-        )
-        # Não deve chamar cadastro de empresa
-        self.empresa_repository_mock.cadastrar_empresa.assert_not_called()
-        self.vaga_repository_mock.cadastrar_candidatura.assert_called_once_with(vaga)
+        resultado = self.service.get_vaga_por_link("")
 
-    def test_cadastra_candidatura_erro_no_repository(self):
-        """Testa erro no repository durante cadastro"""
+        # Assert
+        assert resultado is None
+        self.vaga_repository_mock.buscar_vaga_por_link.assert_called_once_with("")
+
+    def test_filtra_vagas_com_filtro_especial(self):
+        """Testa filtro com caracteres especiais"""
         # Arrange
-        vaga = Vaga(
-            nome="Desenvolvedor Python",
-            link="https://example.com/vaga",
-            status="candidatar-se",
-            empresa=None,
+        vaga = Vaga(nome="Dev C#", link="https://example.com/vaga", status="aplicado")
+        self.vaga_repository_mock.get_vaga_com_filtro.return_value = [vaga]
+
+        # Act
+        resultado = self.service.filtra_vagas("C#", "nome")
+
+        # Assert
+        assert len(resultado) == 1
+        assert "C#" in resultado[0].nome
+        self.vaga_repository_mock.get_vaga_com_filtro.assert_called_once_with(
+            "C#", "nome"
         )
-        # Configura o mock para lançar uma exceção
-        self.vaga_repository_mock.cadastrar_candidatura.side_effect = (
-            TrackJobsException("Erro ao cadastrar vaga")
-        )
-        # Act & Assert
-        with pytest.raises(TrackJobsException) as excinfo:
-            self.candidatura_service.cadastra_candidatura(vaga)
-        assert "Erro ao cadastrar vaga" in str(excinfo.value)

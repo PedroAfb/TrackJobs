@@ -49,7 +49,7 @@ class SQLiteVagaRepository(VagaRepository):
                 e.id, e.nome, e.site, e.setor
                 FROM vagas v
                 LEFT JOIN empresas e ON v.idEmpresa = e.id
-                WHERE v.link = ?""",
+                WHERE link = ?""",
                 (link,),
             )
             row = cursor.fetchone()

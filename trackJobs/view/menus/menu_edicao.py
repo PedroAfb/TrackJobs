@@ -10,6 +10,8 @@ from trackJobs.exceptions import RetornarMenuException
 
 CAMPOS_VAGA = ["nome", "link", "data_aplicacao", "status", "descricao"]
 
+CAMPOS_DISPLAY = {"data_aplicacao": "data de aplicação", "descricao": "descrição"}
+
 
 class MenuEdicao(Menu):
     def __init__(self, tela, controller: JobController):
@@ -19,17 +21,15 @@ class MenuEdicao(Menu):
     def exibir_campo(self, campo, dados, i, campo_pra_print):
         _, largura = self.tela.getmaxyx()
         margem = 2  # Margem de segurança para evitar estouro
-        if campo == "data_aplicacao":
-            campo = "data de aplicação"
-        elif campo == "descricao":
-            campo = "descrição"
+
+        nome_exibicao = CAMPOS_DISPLAY.get(campo, campo)
 
         if (
             campo_pra_print == self.index_campo_atual
         ):  # Se o cursor estiver no campo, mostra o valor
-            msg = f"> {campo.capitalize()}: {dados}\n"
+            msg = f"> {nome_exibicao.capitalize()}: {dados}\n"
         else:
-            msg = f"> {campo.capitalize()}\n"
+            msg = f"> {nome_exibicao.capitalize()}\n"
 
         largura_disponivel = max(
             0, largura - margem * 2
@@ -102,11 +102,15 @@ class MenuEdicao(Menu):
                 return result
 
     def exibe_mensagem_sucesso(self, novo_status, campo_atualizado="Status"):
-        if campo_atualizado == "Data_aplicaçao":
-            campo_atualizado = "Data de aplicação"
+        # Usa o nome de exibição amigável se disponível
+        nome_exibicao = CAMPOS_DISPLAY.get(campo_atualizado.lower(), campo_atualizado)
+
         self.tela.clear()
         self.tela.addstr(
-            5, 5, f"✅ Campo {campo_atualizado} atualizado com sucesso!", curses.A_BOLD
+            5,
+            5,
+            f"✅ Campo {nome_exibicao.capitalize()} atualizado com sucesso!",
+            curses.A_BOLD,
         )
         self.tela.addstr(7, 5, "Pressione qualquer tecla para voltar ao menu principal")
         self.tela.getch()  # Espera pressionar uma tecla

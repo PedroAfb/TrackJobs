@@ -6,6 +6,7 @@ from .cadastro_cli import CadastroCliView
 from trackJobs.controller.job_controller import JobController
 from trackJobs.utils import CUSTOM_STYLE
 from trackJobs.view.edicao_cli import EdicaoCliView
+from trackJobs.view.status_cli import StatusCliView
 
 
 class CliView:
@@ -43,7 +44,7 @@ class CliView:
             elif opcao == "Visualizar Candidaturas":
                 self.visualizacao()
             elif opcao == "Editar Status da Candidatura":
-                self.edita_status()
+                StatusCliView(self.tela, self.controller).edita_status()
             elif opcao == "Editar Candidatura":
                 EdicaoCliView(self.tela, self.controller).edicao()
             elif opcao == "Remover Candidatura":

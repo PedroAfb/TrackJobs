@@ -49,7 +49,7 @@ class SQLiteVagaRepository(VagaRepository):
                 e.id, e.nome, e.site, e.setor
                 FROM vagas v
                 LEFT JOIN empresas e ON v.idEmpresa = e.id
-                WHERE link = ?""",
+                WHERE v.link = ?""",
                 (link,),
             )
             row = cursor.fetchone()
@@ -91,7 +91,7 @@ class SQLiteVagaRepository(VagaRepository):
         """
         params = []
         if tipo_filtro in ["link", "nome", "status"]:
-            query += f" WHERE {tipo_filtro} LIKE ?"
+            query += f" WHERE v.{tipo_filtro} LIKE ?"
             params.append(f"%{filtro}%")
 
         with self.base_repository.transaction() as cursor:

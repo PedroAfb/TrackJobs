@@ -36,3 +36,7 @@ class CandidaturaService:
                 f"Campo '{campo_update}' não é válido para atualização."
             )
         self.vaga_repository.atualizar_vaga(vaga, campo_update, novo_dado)
+
+    def remove_vaga(self, vaga: Vaga):
+        """Remove uma vaga existente"""
+        self.vaga_repository.remover_vaga(vaga)

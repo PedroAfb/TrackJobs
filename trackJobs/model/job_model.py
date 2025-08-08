@@ -63,3 +63,7 @@ class JobModel:
     def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str):
         """Atualiza uma vaga existente"""
         return self.candidatura_service.atualiza_vaga(vaga, campo_update, novo_dado)
+
+    def remover_vaga(self, vaga: Vaga):
+        """Remove uma vaga existente"""
+        return self.candidatura_service.remove_vaga(vaga)

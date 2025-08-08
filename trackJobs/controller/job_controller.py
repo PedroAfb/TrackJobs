@@ -107,3 +107,13 @@ class JobController:
             )
         except TrackJobsException as e:
             raise e
+
+    def remover_candidatura(self, dados_vaga: dict):
+        try:
+            vaga = dictionary_to_vaga(dados_vaga)
+            self.job_model.remover_vaga(vaga)
+            return (
+                "[bold green]\nRemoção da vaga " "realizada com sucesso!\n[/bold green]"
+            )
+        except TrackJobsException as e:
+            raise e

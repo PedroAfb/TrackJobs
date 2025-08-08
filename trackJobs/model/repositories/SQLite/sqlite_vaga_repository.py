@@ -133,3 +133,9 @@ class SQLiteVagaRepository(VagaRepository):
                     vaga.link,
                 ),
             )
+
+    def remover_vaga(self, vaga: Vaga) -> None:
+        """Remove uma vaga do banco de dados"""
+        with self.base_repository.transaction() as cursor:
+            msg_delete_vaga = "DELETE FROM vagas WHERE link = ?"
+            cursor.execute(msg_delete_vaga, (vaga.link,))

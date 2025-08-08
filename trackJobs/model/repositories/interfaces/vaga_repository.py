@@ -25,3 +25,7 @@ class VagaRepository(Protocol):
     def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str) -> None:
         """Atualiza uma vaga existente com um novo dado"""
         ...
+
+    def remover_vaga(self, vaga: Vaga) -> None:
+        """Remove uma vaga do banco de dados"""
+        ...

@@ -1,5 +1,7 @@
 import questionary
+from rich.console import Console
 
+from trackJobs.controller.job_controller import JobController
 from trackJobs.exceptions import RetornarMenuException
 from trackJobs.exceptions import TrackJobsException
 
@@ -7,8 +9,9 @@ BOTAO_RETORNAR_MENU = "6"
 
 
 class CadastroCliView:
-    def __init__(self, controller):
+    def __init__(self, controller: JobController):
         self.controller = controller
+        self.console = Console()
 
     def cadastro(self) -> None:
         """Método para cadastrar uma nova candidatura"""

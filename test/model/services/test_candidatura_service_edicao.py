@@ -114,3 +114,93 @@ class TestCandidaturaServiceEdicao:
             self.service.atualiza_vaga(vaga, "status", "entrevista")
 
         assert "Erro no banco de dados" in str(exc_info.value)
+
+    def test_atualiza_vaga_vaga_none(self):
+        """Testa atualização com vaga None"""
+        # Arrange
+        self.vaga_repository_mock.listar_campos_vaga.return_value = ["nome", "status"]
+
+        # Act
+        self.service.atualiza_vaga(None, "status", "entrevista")
+
+        # Assert
+        self.vaga_repository_mock.atualizar_vaga.assert_called_once_with(
+            None, "status", "entrevista"
+        )
+
+    def test_atualiza_vaga_campo_vazio(self):
+        """Testa atualização com campo vazio"""
+        # Arrange
+        vaga = Vaga(
+            nome="Dev Python", link="https://example.com/vaga", status="aplicado"
+        )
+        self.vaga_repository_mock.listar_campos_vaga.return_value = ["nome", "status"]
+
+        # Act & Assert
+        with pytest.raises(CampoInvalidoException) as exc_info:
+            self.service.atualiza_vaga(vaga, "", "novo_valor")
+
+        assert "não é válido para atualização" in str(exc_info.value)
+
+    def test_atualiza_vaga_valor_vazio(self):
+        """Testa atualização com valor vazio (deve ser permitido)"""
+        # Arrange
+        vaga = Vaga(
+            nome="Dev Python", link="https://example.com/vaga", status="aplicado"
+        )
+        self.vaga_repository_mock.listar_campos_vaga.return_value = [
+            "nome",
+            "status",
+            "descricao",
+        ]
+
+        # Act
+        self.service.atualiza_vaga(vaga, "descricao", "")
+
+        # Assert
+        self.vaga_repository_mock.atualizar_vaga.assert_called_once_with(
+            vaga, "descricao", ""
+        )
+
+    @pytest.mark.parametrize(
+        "campo_invalido",
+        ["campo_inexistente", "id", "empresa_id", "data_criacao", "usuario_id"],
+    )
+    def test_atualiza_vaga_campos_invalidos_parametrizado(self, campo_invalido):
+        """Testa atualização com diferentes campos inválidos"""
+        # Arrange
+        vaga = Vaga(
+            nome="Dev Python", link="https://example.com/vaga", status="aplicado"
+        )
+        self.vaga_repository_mock.listar_campos_vaga.return_value = [
+            "nome",
+            "link",
+            "status",
+            "descricao",
+            "data_aplicacao",
+        ]
+
+        # Act & Assert
+        with pytest.raises(CampoInvalidoException) as exc_info:
+            self.service.atualiza_vaga(vaga, campo_invalido, "novo_valor")
+
+        assert f"Campo '{campo_invalido}' não é válido para atualização" in str(
+            exc_info.value
+        )
+        self.vaga_repository_mock.atualizar_vaga.assert_not_called()
+
+    def test_atualiza_vaga_repositorio_indisponivel(self):
+        """Testa atualização quando repository lança erro de conexão"""
+        # Arrange
+        vaga = Vaga(
+            nome="Dev Python", link="https://example.com/vaga", status="aplicado"
+        )
+        self.vaga_repository_mock.listar_campos_vaga.side_effect = Exception(
+            "Conexão perdida"
+        )
+
+        # Act & Assert
+        with pytest.raises(Exception) as exc_info:
+            self.service.atualiza_vaga(vaga, "status", "entrevista")
+
+        assert "Conexão perdida" in str(exc_info.value)

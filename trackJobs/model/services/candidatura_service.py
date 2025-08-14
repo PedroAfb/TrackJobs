@@ -12,6 +12,8 @@ class CandidaturaService:
         self.vaga_repository = vaga_repository
 
     def cadastra_candidatura(self, vaga: Vaga):
+        """Cadastra uma nova candidatura,
+        em que seus dados já foram validados, no banco de dados"""
         empresa = None
         if vaga.empresa:
             empresa = self.empresa_repository.buscar_empresa_por_nome(vaga.empresa.nome)
@@ -22,7 +24,7 @@ class CandidaturaService:
         self.vaga_repository.cadastrar_candidatura(vaga)
 
     def filtra_vagas(self, filtro: str = "", tipo_filtro: str = "") -> list[Vaga]:
-        """Filtra vagas com base no nome ou descrição"""
+        """Filtra vagas com base no nome, link ou status"""
         return self.vaga_repository.get_vaga_com_filtro(filtro, tipo_filtro)
 
     def get_vaga_por_link(self, link: str) -> Vaga:

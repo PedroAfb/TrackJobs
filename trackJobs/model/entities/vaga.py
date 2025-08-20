@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from pydantic import BaseModel
+
 from trackJobs.model.entities.empresa import Empresa
+from trackJobs.model.entities.empresa import EmpresaPost
 
 
 @dataclass
@@ -13,6 +16,23 @@ class Vaga:
     data_aplicacao: Optional[str] = None
     descricao: Optional[str] = None
     empresa: Optional[Empresa] = None
+
+
+class VagaPost(BaseModel):
+    nome: str
+    link: str
+    status: str = "candidatar-se"
+    data_aplicacao: Optional[str] = None
+    descricao: Optional[str] = None
+    empresa: Optional[EmpresaPost] = None
+
+
+class VagaQuery(BaseModel):
+    nome: Optional[str] = None
+    link: Optional[str] = None
+    status: Optional[str] = None
+    id: Optional[int] = None
+    descricao: Optional[str] = None
 
 
 def dictionary_to_vaga(data: dict) -> Vaga:

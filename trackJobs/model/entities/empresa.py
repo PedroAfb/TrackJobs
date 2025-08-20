@@ -1,10 +1,25 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from pydantic import BaseModel
+
 
 @dataclass
 class Empresa:
     nome: str
+    id: Optional[int] = None
+    site: Optional[str] = None
+    setor: Optional[str] = None
+
+
+class EmpresaPost(BaseModel):
+    nome: str
+    site: Optional[str] = None
+    setor: Optional[str] = None
+
+
+class EmpresaQuery(BaseModel):
+    nome: Optional[str] = None
     id: Optional[int] = None
     site: Optional[str] = None
     setor: Optional[str] = None

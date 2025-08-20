@@ -1,5 +1,6 @@
 from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.vaga import Vaga
+from trackJobs.model.entities.vaga import VagaQuery
 from trackJobs.model.repositories.interfaces.vaga_repository import VagaRepository
 from trackJobs.model.repositories.SQLite.base_repository import BaseSQLiteRepository
 
@@ -20,7 +21,7 @@ class SQLiteVagaRepository(VagaRepository):
 
         return colunas_vagas
 
-    def cadastrar_candidatura(self, vaga: Vaga) -> None:
+    def cadastrar_candidatura(self, vaga: Vaga) -> int:
         """Cadastra uma nova candidatura no banco de dados"""
         with self.base_repository.transaction() as cursor:
             msg_insert_candidatura = """
@@ -39,6 +40,9 @@ class SQLiteVagaRepository(VagaRepository):
                     vaga.empresa.id if vaga.empresa else None,
                 ),
             )
+
+            vaga_id = cursor.lastrowid
+        return vaga_id
 
     def buscar_vaga_por_link(self, link: str) -> Vaga:
         """Busca uma vaga pelo link"""
@@ -93,6 +97,58 @@ class SQLiteVagaRepository(VagaRepository):
         if tipo_filtro in ["link", "nome", "status"]:
             query += f" WHERE v.{tipo_filtro} LIKE ?"
             params.append(f"%{filtro}%")
+
+        with self.base_repository.transaction() as cursor:
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+        return [
+            Vaga(
+                id=row[0],
+                nome=row[1],
+                link=row[2],
+                status=row[3],
+                descricao=row[4],
+                data_aplicacao=row[5],
+                empresa=Empresa(
+                    id=row[6],
+                    nome=row[7],
+                    site=row[8] if row[8] else None,
+                    setor=row[9] if row[9] else None,
+                )
+                if row[6] is not None
+                else None,
+            )
+            for row in rows
+        ]
+
+    def get_vaga(self, filtro: VagaQuery) -> list[Vaga]:
+        """Busca vagas com base em um filtro"""
+
+        query = """
+            SELECT
+            v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
+            e.id, e.nome, e.site, e.setor
+            FROM vagas v
+            LEFT JOIN empresas e ON v.idEmpresa = e.id
+            WHERE 1=1
+        """
+        params = []
+        if filtro.nome:
+            query += " AND v.nome LIKE ?"
+            params.append(f"%{filtro.nome}%")
+        if filtro.link:
+            query += " AND v.link LIKE ?"
+            params.append(f"%{filtro.link}%")
+        if filtro.status:
+            query += " AND v.status LIKE ?"
+            params.append(f"%{filtro.status}%")
+        if filtro.descricao:
+            query += " AND v.descricao LIKE ?"
+            params.append(f"%{filtro.descricao}%")
+        if filtro.id:
+            query += " AND v.id = ?"
+            params.append(filtro.id)
 
         with self.base_repository.transaction() as cursor:
             cursor.execute(query, params)

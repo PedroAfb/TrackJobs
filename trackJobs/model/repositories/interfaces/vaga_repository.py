@@ -1,6 +1,7 @@
 from typing import Protocol
 
 from trackJobs.model.entities.vaga import Vaga
+from trackJobs.model.entities.vaga import VagaQuery
 
 
 class VagaRepository(Protocol):
@@ -8,7 +9,7 @@ class VagaRepository(Protocol):
         """Retorna os campos necessários para cadastro de vaga"""
         ...
 
-    def cadastrar_candidatura(self, candidatura: Vaga) -> None:
+    def cadastrar_candidatura(self, candidatura: Vaga) -> int:
         """Cadastra uma nova candidatura no banco de dados"""
         ...
 
@@ -19,6 +20,10 @@ class VagaRepository(Protocol):
     def get_vaga_com_filtro(
         self, filtro: str = "", tipo_filtro: str = ""
     ) -> list[Vaga]:
+        """Busca vagas com base em um filtro específico"""
+        ...
+
+    def get_vaga(self, filtro: VagaQuery) -> list[Vaga]:
         """Busca vagas com base em um filtro específico"""
         ...
 

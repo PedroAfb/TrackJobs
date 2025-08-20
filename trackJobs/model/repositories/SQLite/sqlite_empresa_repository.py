@@ -1,6 +1,7 @@
 from typing import Optional
 
 from trackJobs.model.entities.empresa import Empresa
+from trackJobs.model.entities.empresa import EmpresaQuery
 from trackJobs.model.repositories.interfaces.empresa_repository import EmpresaRepository
 from trackJobs.model.repositories.SQLite.base_repository import BaseSQLiteRepository
 
@@ -78,3 +79,30 @@ class SQLiteEmpresaRepository(EmpresaRepository):
                 id=empresa[0], nome=empresa[1], site=empresa[2], setor=empresa[3]
             )
         return None
+
+    def get_empresas(self, filtro: EmpresaQuery) -> list[Empresa]:
+        with self.base_repository.transaction() as cursor:
+            query = """
+            SELECT id, nome, site, setor
+            FROM empresas
+            WHERE 1=1
+            """
+            params = []
+            if filtro.nome:
+                query += " AND nome LIKE ?"
+                params.append(f"%{filtro.nome}%")
+            if filtro.site:
+                query += " AND site LIKE ?"
+                params.append(f"%{filtro.site}%")
+            if filtro.setor:
+                query += " AND setor LIKE ?"
+                params.append(f"%{filtro.setor}%")
+            if filtro.id:
+                query += " AND id = ?"
+                params.append(filtro.id)
+
+            cursor.execute(query, params)
+            return [
+                Empresa(id=row[0], nome=row[1], site=row[2], setor=row[3])
+                for row in cursor.fetchall()
+            ]

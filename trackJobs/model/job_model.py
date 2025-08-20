@@ -2,7 +2,10 @@ from .repositories.SQLite.sqlite_empresa_repository import SQLiteEmpresaReposito
 from .repositories.SQLite.sqlite_vaga_repository import SQLiteVagaRepository
 from trackJobs.banco_de_dados import BancoDeDados
 from trackJobs.exceptions import TrackJobsException
+from trackJobs.model.entities.empresa import Empresa
+from trackJobs.model.entities.empresa import EmpresaQuery
 from trackJobs.model.entities.vaga import Vaga
+from trackJobs.model.entities.vaga import VagaQuery
 from trackJobs.model.services.candidatura_service import CandidaturaService
 from trackJobs.model.services.validadores.empresa_validador_service import (
     EmpresaValidadorService,
@@ -25,7 +28,14 @@ class JobModel:
     def cadastro(self, dados_candidatura: Vaga):
         """Cadastra uma nova candidatura"""
         try:
-            self.candidatura_service.cadastra_candidatura(dados_candidatura)
+            return self.candidatura_service.cadastra_candidatura(dados_candidatura)
+        except TrackJobsException as e:
+            raise e
+
+    def cadastra_empresa(self, empresa: Empresa):
+        """Cadastra uma nova empresa"""
+        try:
+            return self.candidatura_service.cadastra_empresa(empresa)
         except TrackJobsException as e:
             raise e
 
@@ -60,6 +70,10 @@ class JobModel:
         """Filtra candidaturas com base no nome ou descrição"""
         return self.candidatura_service.filtra_vagas(filtro, tipo_filtro)
 
+    def get_vagas(self, filtro: VagaQuery):
+        """Filtra candidaturas com base no nome ou descrição"""
+        return self.candidatura_service.get_vagas(filtro)
+
     def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str):
         """Atualiza uma vaga existente"""
         return self.candidatura_service.atualiza_vaga(vaga, campo_update, novo_dado)
@@ -67,3 +81,15 @@ class JobModel:
     def remover_vaga(self, vaga: Vaga):
         """Remove uma vaga existente"""
         return self.candidatura_service.remove_vaga(vaga)
+
+    def get_empresas(self, filtro: EmpresaQuery) -> list[Empresa]:
+        """Busca empresas com base no filtro fornecido"""
+        return self.candidatura_service.get_empresas(filtro)
+
+    def validar_empresa(self, empresa: Empresa) -> bool:
+        """Valida os dados de uma empresa antes do cadastro"""
+        return self.candidatura_service.valida_empresa(empresa)
+
+    def validar_vaga(self, vaga: Vaga) -> bool:
+        """Valida os dados de uma vaga antes do cadastro"""
+        return self.candidatura_service.valida_vaga(vaga)

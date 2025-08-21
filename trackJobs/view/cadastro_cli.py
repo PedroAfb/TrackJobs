@@ -45,7 +45,7 @@ class CadastroCliView:
             "site_empresa",
             "status",
             "data_aplicacao",
-            "descriçao",
+            "descricao",
         }
 
         # Sempre fazer strip

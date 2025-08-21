@@ -358,7 +358,7 @@ class TestSQLiteVagaRepositoryEdicao:
         assert vaga.empresa.nome == "TechCorp"
         self.cursor_mock.execute.assert_called_once_with(
             """SELECT
-                v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
+                v.id, v.nome, v.link, v.status, v.descricao, v.data_aplicacao,
                 e.id, e.nome, e.site, e.setor
                 FROM vagas v
                 LEFT JOIN empresas e ON v.idEmpresa = e.id

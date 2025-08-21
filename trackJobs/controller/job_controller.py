@@ -16,8 +16,8 @@ class JobController:
             "nome": "Qual o nome da vaga?[OBRIGATÓRIO]\n",
             "link": "Qual o link da vaga?[OBRIGATÓRIO]\n",
             "status": "Qual o status da vaga?\n",
-            "data_aplicaçao": "Qual a data da candidatura (YYYY-MM-DD)?[OPCIONAL]\n",
-            "descriçao": "Coloque descrição sobre a vaga[OPCIONAL]\n",
+            "data_aplicacao": "Qual a data da candidatura (YYYY-MM-DD)?[OPCIONAL]\n",
+            "descricao": "Coloque descrição sobre a vaga[OPCIONAL]\n",
         }
 
         colunas_vagas = self.job_model.campos_cadastro_vaga()

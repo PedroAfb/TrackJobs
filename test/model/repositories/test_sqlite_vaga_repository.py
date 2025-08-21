@@ -54,8 +54,8 @@ class TestSQLiteVagaRepository:
         assert "nome" in campos
         assert "link" in campos
         assert "status" in campos
-        assert "descriçao" in campos
-        assert "data_aplicaçao" in campos
+        assert "descricao" in campos
+        assert "data_aplicacao" in campos
         assert "id" not in campos
         assert "idEmpresa" not in campos
 

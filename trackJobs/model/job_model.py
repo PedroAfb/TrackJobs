@@ -6,6 +6,7 @@ from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.empresa import EmpresaQuery
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaQuery
+from trackJobs.model.entities.vaga import VagaUpdate
 from trackJobs.model.services.candidatura_service import CandidaturaService
 from trackJobs.model.services.validadores.empresa_validador_service import (
     EmpresaValidadorService,
@@ -77,6 +78,10 @@ class JobModel:
     def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str):
         """Atualiza uma vaga existente"""
         return self.candidatura_service.atualiza_vaga(vaga, campo_update, novo_dado)
+
+    def atualiza_campos_vaga(self, vaga: VagaUpdate, dados_update: dict):
+        """Atualiza múltiplos campos de uma vaga existente"""
+        return self.candidatura_service.atualiza_campos_vaga(vaga, dados_update)
 
     def remover_vaga(self, vaga: Vaga):
         """Remove uma vaga existente"""

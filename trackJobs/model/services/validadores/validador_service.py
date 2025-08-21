@@ -14,8 +14,8 @@ class ValidadorService:
             "nome": lambda nome: self.vaga_validador.valida_nome(nome),
             "link": lambda link: self.vaga_validador.valida_link(link),
             "status": lambda status: self.vaga_validador.valida_status(status),
-            "descriçao": lambda descricao: True,
-            "data_aplicaçao": lambda data: self.vaga_validador.valida_data_aplicacao(
+            "descricao": lambda descricao: True,
+            "data_aplicacao": lambda data: self.vaga_validador.valida_data_aplicacao(
                 data
             ),
             "nome_empresa": lambda nome_empresa: (

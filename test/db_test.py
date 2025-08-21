@@ -30,8 +30,8 @@ def criar_banco_teste():
             status TEXT DEFAULT 'candidatar-se'
             CHECK(status IN
             ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
-            data_aplicaçao DATE DEFAULT CURRENT_DATE,
-            descriçao TEXT,
+            data_aplicacao DATE DEFAULT CURRENT_DATE,
+            descricao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY (idEmpresa) REFERENCES empresas(id)
         )
@@ -68,8 +68,8 @@ def criar_banco_teste_com_dados():
             status TEXT DEFAULT 'candidatar-se'
             CHECK(status IN
             ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
-            'data_aplicaçao' DATE DEFAULT CURRENT_DATE,
-            descriçao TEXT,
+            data_aplicacao DATE DEFAULT CURRENT_DATE,
+            descricao TEXT,
             idEmpresa INTEGER,
             FOREIGN KEY (idEmpresa) REFERENCES empresas(id)
         )
@@ -173,7 +173,7 @@ def criar_banco_teste_com_dados():
 
     cursor.executemany(
         """
-        INSERT OR IGNORE INTO vagas (nome, link, status, descriçao, idEmpresa)
+        INSERT OR IGNORE INTO vagas (nome, link, status, descricao, idEmpresa)
         VALUES (?, ?, ?, ?, ?)
     """,
         vagas_teste,

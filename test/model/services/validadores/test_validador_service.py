@@ -80,7 +80,7 @@ class TestValidadorService:
     def test_validacao_descricao_vaga(self):
         """Testa validação de descrição de vaga (sempre válida)"""
         # Act
-        resultado = self.validador_service.VALIDADORES["descriçao"](
+        resultado = self.validador_service.VALIDADORES["descricao"](
             "Descrição qualquer"
         )
 
@@ -90,7 +90,7 @@ class TestValidadorService:
     def test_validacao_data_aplicacao(self):
         """Testa validação de data de aplicação"""
         # Act
-        self.validador_service.VALIDADORES["data_aplicaçao"]("2025-06-01")
+        self.validador_service.VALIDADORES["data_aplicacao"]("2025-06-01")
 
         # Assert
         self.vaga_validador_mock.valida_data_aplicacao.assert_called_once_with(
@@ -106,7 +106,7 @@ class TestValidadorService:
 
         # Act & Assert
         with pytest.raises(DataInvalidaException):
-            self.validador_service.VALIDADORES["data_aplicaçao"]("01/06/2025")
+            self.validador_service.VALIDADORES["data_aplicacao"]("01/06/2025")
 
         self.vaga_validador_mock.valida_data_aplicacao.assert_called_once_with(
             "01/06/2025"

@@ -60,3 +60,8 @@ class CampoDuplicadoException(TrackJobsException):
 class CampoInvalidoException(TrackJobsException):
     def __init__(self, message="Erro: Campo inválido."):
         super().__init__(message)
+
+
+class VagaNaoEncontradaException(TrackJobsException):
+    def __init__(self, message="Erro: Vaga não encontrada."):
+        super().__init__(message)

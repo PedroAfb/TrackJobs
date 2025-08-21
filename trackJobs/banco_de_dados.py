@@ -47,8 +47,8 @@ class BancoDeDados:
                 status TEXT DEFAULT 'candidatar-se'
                 CHECK(status IN
                 ('candidatar-se', 'em análise', 'entrevista', 'rejeitado', 'aceito')),
-                data_aplicaçao DATE,
-                descriçao TEXT,
+                data_aplicacao DATE,
+                descricao TEXT,
                 idEmpresa INTEGER,
                 FOREIGN KEY(idEmpresa) REFERENCES empresas(id)
                 )"""

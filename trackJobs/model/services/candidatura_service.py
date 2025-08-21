@@ -1,8 +1,11 @@
 from trackJobs.exceptions import CampoInvalidoException
+from trackJobs.exceptions import TrackJobsException
+from trackJobs.exceptions import VagaNaoEncontradaException
 from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.empresa import EmpresaQuery
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaQuery
+from trackJobs.model.entities.vaga import VagaUpdate
 from trackJobs.model.repositories.interfaces.empresa_repository import EmpresaRepository
 from trackJobs.model.repositories.interfaces.vaga_repository import VagaRepository
 from trackJobs.model.services.validadores.empresa_validador_service import (
@@ -11,6 +14,7 @@ from trackJobs.model.services.validadores.empresa_validador_service import (
 from trackJobs.model.services.validadores.vaga_validador_service import (
     VagaValidadorService,
 )
+from trackJobs.model.services.validadores.validador_service import ValidadorService
 
 
 class CandidaturaService:
@@ -56,6 +60,24 @@ class CandidaturaService:
                 f"Campo '{campo_update}' não é válido para atualização."
             )
         self.vaga_repository.atualizar_vaga(vaga, campo_update, novo_dado)
+
+    def atualiza_campos_vaga(self, vaga: VagaUpdate, dados_update: dict):
+        """Atualiza múltiplos campos de uma vaga existente"""
+        validador = ValidadorService(
+            EmpresaValidadorService(self.empresa_repository),
+            VagaValidadorService(self.vaga_repository),
+        )
+        try:
+            for key, value in dados_update.items():
+                validador.VALIDADORES[key](value)
+        except TrackJobsException as e:
+            raise e
+
+        vaga_atualizada = self.vaga_repository.atualizar_campos_vaga(vaga, dados_update)
+        if vaga_atualizada:
+            return vaga_atualizada
+
+        raise VagaNaoEncontradaException()
 
     def remove_vaga(self, vaga: Vaga):
         """Remove uma vaga existente"""

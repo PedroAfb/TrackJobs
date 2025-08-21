@@ -35,6 +35,16 @@ class VagaQuery(BaseModel):
     descricao: Optional[str] = None
 
 
+class VagaUpdate(BaseModel):
+    id: Optional[int] = None
+    nome: Optional[str] = None
+    link: Optional[str] = None
+    status: Optional[str] = None
+    data_aplicacao: Optional[str] = None
+    descricao: Optional[str] = None
+    empresa: Optional[EmpresaPost] = None
+
+
 def dictionary_to_vaga(data: dict) -> Vaga:
     """
     Converte um dicionário em uma instância de Vaga.

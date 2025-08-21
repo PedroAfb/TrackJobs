@@ -2,6 +2,7 @@ from typing import Protocol
 
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaQuery
+from trackJobs.model.entities.vaga import VagaUpdate
 
 
 class VagaRepository(Protocol):
@@ -29,6 +30,11 @@ class VagaRepository(Protocol):
 
     def atualizar_vaga(self, vaga: Vaga, campo_update: str, novo_dado: str) -> None:
         """Atualiza uma vaga existente com um novo dado"""
+        ...
+
+    def atualizar_campos_vaga(
+        self, vaga: VagaUpdate, dados_update: dict
+    ) -> Vaga | None:
         ...
 
     def remover_vaga(self, vaga: Vaga) -> None:

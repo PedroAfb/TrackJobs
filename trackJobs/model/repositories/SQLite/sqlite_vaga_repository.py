@@ -1,6 +1,7 @@
 from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaQuery
+from trackJobs.model.entities.vaga import VagaUpdate
 from trackJobs.model.repositories.interfaces.vaga_repository import VagaRepository
 from trackJobs.model.repositories.SQLite.base_repository import BaseSQLiteRepository
 
@@ -26,7 +27,7 @@ class SQLiteVagaRepository(VagaRepository):
         with self.base_repository.transaction() as cursor:
             msg_insert_candidatura = """
             INSERT INTO vagas
-            (nome, link, status, descriçao, data_aplicaçao, idEmpresa) VALUES
+            (nome, link, status, descricao, data_aplicacao, idEmpresa) VALUES
             (?, ?, ?, ?, ?, ?)"""
 
             cursor.execute(
@@ -49,7 +50,7 @@ class SQLiteVagaRepository(VagaRepository):
         with self.base_repository.transaction() as cursor:
             cursor.execute(
                 """SELECT
-                v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
+                v.id, v.nome, v.link, v.status, v.descricao, v.data_aplicacao,
                 e.id, e.nome, e.site, e.setor
                 FROM vagas v
                 LEFT JOIN empresas e ON v.idEmpresa = e.id
@@ -88,7 +89,7 @@ class SQLiteVagaRepository(VagaRepository):
 
         query = """
             SELECT
-            v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
+            v.id, v.nome, v.link, v.status, v.descricao, v.data_aplicacao,
             e.id, e.nome, e.site, e.setor
             FROM vagas v
             LEFT JOIN empresas e ON v.idEmpresa = e.id
@@ -127,7 +128,7 @@ class SQLiteVagaRepository(VagaRepository):
 
         query = """
             SELECT
-            v.id, v.nome, v.link, v.status, v.descriçao, v.data_aplicaçao,
+            v.id, v.nome, v.link, v.status, v.descricao, v.data_aplicacao,
             e.id, e.nome, e.site, e.setor
             FROM vagas v
             LEFT JOIN empresas e ON v.idEmpresa = e.id
@@ -189,6 +190,26 @@ class SQLiteVagaRepository(VagaRepository):
                     vaga.link,
                 ),
             )
+
+    def atualizar_campos_vaga(
+        self, vaga: VagaUpdate, dados_update: dict
+    ) -> Vaga | None:
+        with self.base_repository.transaction() as cursor:
+            set_clause = ", ".join(f"{campo} = ?" for campo in dados_update.keys())
+            msg_update_vaga = f"""
+            UPDATE vagas
+            SET {set_clause}
+            WHERE id = ?"""
+
+            cursor.execute(
+                msg_update_vaga,
+                (*dados_update.values(), vaga.id),
+            )
+
+            vaga_atualizada = self.get_vaga(
+                VagaQuery(id=vaga.id)
+            )  # Recarrega a vaga atualizada
+            return vaga_atualizada[0] if vaga_atualizada else None
 
     def remover_vaga(self, vaga: Vaga) -> None:
         """Remove uma vaga do banco de dados"""

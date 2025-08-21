@@ -25,6 +25,13 @@ class EmpresaQuery(BaseModel):
     setor: Optional[str] = None
 
 
+class EmpresaUpdate(BaseModel):
+    id: Optional[int] = None
+    nome: Optional[str] = None
+    site: Optional[str] = None
+    setor: Optional[str] = None
+
+
 def dictionary_to_empresa(data: dict) -> Empresa:
     """
     Converte um dicionário em uma instância de Empresa.

@@ -14,6 +14,7 @@ from trackJobs.model.entities.empresa import EmpresaQuery
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaPost
 from trackJobs.model.entities.vaga import VagaQuery
+from trackJobs.model.entities.vaga import VagaUpdate
 
 router = APIRouter(tags=["empresas"])
 
@@ -52,5 +53,18 @@ def cadastra_empresa(
 ) -> int:
     try:
         return controller.cadastra_empresa(empresa)
+    except TrackJobsException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.patch("/vagas/{vaga_id}", response_model=Vaga)
+def atualiza_vaga(
+    vaga_id: int,
+    vaga: VagaUpdate,
+    controller: APIJobController = Depends(get_job_controller),
+) -> Vaga:
+    try:
+        vaga.id = vaga_id
+        return controller.atualiza_vaga(vaga)
     except TrackJobsException as e:
         raise HTTPException(status_code=400, detail=str(e))

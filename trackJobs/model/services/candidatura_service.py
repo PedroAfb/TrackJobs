@@ -5,7 +5,6 @@ from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.empresa import EmpresaQuery
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaQuery
-from trackJobs.model.entities.vaga import VagaUpdate
 from trackJobs.model.repositories.interfaces.empresa_repository import EmpresaRepository
 from trackJobs.model.repositories.interfaces.vaga_repository import VagaRepository
 from trackJobs.model.services.validadores.empresa_validador_service import (
@@ -61,7 +60,7 @@ class CandidaturaService:
             )
         self.vaga_repository.atualizar_vaga(vaga, campo_update, novo_dado)
 
-    def atualiza_campos_vaga(self, vaga: VagaUpdate, dados_update: dict):
+    def atualiza_campos_vaga(self, vaga_id: int, dados_update: dict):
         """Atualiza múltiplos campos de uma vaga existente"""
         validador = ValidadorService(
             EmpresaValidadorService(self.empresa_repository),
@@ -73,7 +72,9 @@ class CandidaturaService:
         except TrackJobsException as e:
             raise e
 
-        vaga_atualizada = self.vaga_repository.atualizar_campos_vaga(vaga, dados_update)
+        vaga_atualizada = self.vaga_repository.atualizar_campos_vaga(
+            vaga_id, dados_update
+        )
         if vaga_atualizada:
             return vaga_atualizada
 

@@ -1,7 +1,6 @@
 from trackJobs.model.entities.empresa import Empresa
 from trackJobs.model.entities.vaga import Vaga
 from trackJobs.model.entities.vaga import VagaQuery
-from trackJobs.model.entities.vaga import VagaUpdate
 from trackJobs.model.repositories.interfaces.vaga_repository import VagaRepository
 from trackJobs.model.repositories.SQLite.base_repository import BaseSQLiteRepository
 
@@ -191,9 +190,7 @@ class SQLiteVagaRepository(VagaRepository):
                 ),
             )
 
-    def atualizar_campos_vaga(
-        self, vaga: VagaUpdate, dados_update: dict
-    ) -> Vaga | None:
+    def atualizar_campos_vaga(self, vaga_id: int, dados_update: dict) -> Vaga | None:
         with self.base_repository.transaction() as cursor:
             set_clause = ", ".join(f"{campo} = ?" for campo in dados_update.keys())
             msg_update_vaga = f"""
@@ -203,11 +200,11 @@ class SQLiteVagaRepository(VagaRepository):
 
             cursor.execute(
                 msg_update_vaga,
-                (*dados_update.values(), vaga.id),
+                (*dados_update.values(), vaga_id),
             )
 
             vaga_atualizada = self.get_vaga(
-                VagaQuery(id=vaga.id)
+                VagaQuery(id=vaga_id)
             )  # Recarrega a vaga atualizada
             return vaga_atualizada[0] if vaga_atualizada else None
 

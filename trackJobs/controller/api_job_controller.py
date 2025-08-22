@@ -53,7 +53,7 @@ class APIJobController:
                     detail="Pelo menos um campo deve ser fornecido para atualização",
                 )
 
-            return self.job_model.atualiza_campos_vaga(vaga, dados_update)
+            return self.job_model.atualiza_campos_vaga(vaga.id, dados_update)
 
         except TrackJobsException as e:
             raise e

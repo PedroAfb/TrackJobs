@@ -22,7 +22,7 @@ class SQLiteVagaRepository(VagaRepository):
 
         return colunas_vagas
 
-    def cadastrar_candidatura(self, vaga: Vaga) -> int:
+    def cadastrar_candidatura(self, vaga: Vaga) -> Vaga:
         """Cadastra uma nova candidatura no banco de dados"""
         with self.base_repository.transaction() as cursor:
             msg_insert_candidatura = """
@@ -43,7 +43,7 @@ class SQLiteVagaRepository(VagaRepository):
             )
 
             vaga_id = cursor.lastrowid
-        return vaga_id
+        return self.get_vaga(VagaQuery(id=vaga_id))
 
     def buscar_vaga_por_link(self, link: str) -> Vaga:
         """Busca uma vaga pelo link"""

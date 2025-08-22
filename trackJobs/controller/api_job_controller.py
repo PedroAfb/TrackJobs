@@ -21,7 +21,7 @@ class APIJobController:
     def get_vagas(self, filtro: VagaQuery) -> list[Vaga]:
         return self.job_model.get_vagas(filtro)
 
-    def cadastra_vaga(self, vaga: VagaPost) -> int:
+    def cadastra_vaga(self, vaga: VagaPost) -> Vaga:
         try:
             if vaga.empresa:
                 self.job_model.validar_empresa(vaga.empresa)
@@ -32,7 +32,7 @@ class APIJobController:
         except TrackJobsException as e:
             raise e
 
-    def cadastra_empresa(self, empresa: EmpresaPost) -> int:
+    def cadastra_empresa(self, empresa: EmpresaPost) -> Empresa:
         try:
             self.job_model.validar_empresa(empresa)
             return self.job_model.cadastra_empresa(empresa)

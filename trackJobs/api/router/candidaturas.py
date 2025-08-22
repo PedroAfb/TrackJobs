@@ -35,36 +35,42 @@ def get_vagas(
     return controller.get_vagas(filtro_vaga)
 
 
-@router.post("/vagas", response_model=int)
+@router.post("/vagas", response_model=dict)
 def cadastra_vaga(
     vaga: VagaPost,
     controller: APIJobController = Depends(get_job_controller),
-) -> int:
+) -> dict:
     try:
-        return controller.cadastra_vaga(vaga)
+        vaga_cadastrada = controller.cadastra_vaga(vaga)
+        return {"message": "Vaga cadastrada com sucesso", "vaga": vaga_cadastrada}
     except TrackJobsException as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/empresas", response_model=int)
+@router.post("/empresas", response_model=dict)
 def cadastra_empresa(
     empresa: EmpresaPost,
     controller: APIJobController = Depends(get_job_controller),
-) -> int:
+) -> dict:
     try:
-        return controller.cadastra_empresa(empresa)
+        empresa_cadastrada = controller.cadastra_empresa(empresa)
+        return {
+            "message": "Empresa cadastrada com sucesso",
+            "empresa": empresa_cadastrada,
+        }
     except TrackJobsException as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.patch("/vagas/{vaga_id}", response_model=Vaga)
+@router.patch("/vagas/{vaga_id}", response_model=dict)
 def atualiza_vaga(
     vaga_id: int,
     vaga: VagaUpdate,
     controller: APIJobController = Depends(get_job_controller),
-) -> Vaga:
+) -> dict:
     try:
         vaga.id = vaga_id
-        return controller.atualiza_vaga(vaga)
+        vaga_atualizada = controller.atualiza_vaga(vaga)
+        return {"message": "Vaga atualizada com sucesso", "vaga": vaga_atualizada}
     except TrackJobsException as e:
         raise HTTPException(status_code=400, detail=str(e))

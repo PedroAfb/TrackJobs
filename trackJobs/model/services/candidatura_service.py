@@ -39,7 +39,7 @@ class CandidaturaService:
     def cadastra_empresa(self, empresa: Empresa):
         """Cadastra uma nova empresa no banco de dados"""
         empresa = self.empresa_repository.cadastrar_empresa(empresa)
-        return empresa.id
+        return empresa
 
     def filtra_vagas(self, filtro: str = "", tipo_filtro: str = "") -> list[Vaga]:
         """Filtra vagas com base no nome, link ou status"""

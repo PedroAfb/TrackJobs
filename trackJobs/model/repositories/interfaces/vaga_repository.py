@@ -10,7 +10,7 @@ class VagaRepository(Protocol):
         """Retorna os campos necessários para cadastro de vaga"""
         ...
 
-    def cadastrar_candidatura(self, candidatura: Vaga) -> int:
+    def cadastrar_candidatura(self, candidatura: Vaga) -> Vaga:
         """Cadastra uma nova candidatura no banco de dados"""
         ...
 
